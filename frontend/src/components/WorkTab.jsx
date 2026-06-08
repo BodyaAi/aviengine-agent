@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import {
   Card,
@@ -6,6 +7,10 @@ import {
   Title,
   Text,
   Caption,
+  Input,
+  FormField,
+  Separator,
+  Header,
 } from "@vkontakte/vkui";
 import {
   Icon20Add,
@@ -17,10 +22,10 @@ import Toast from "./ui/Toast";
 
 const TAG_BLUE = {
   display: "inline-flex", alignItems: "center", gap: 4,
-  backgroundColor: "rgba(0,119,255,0.12)",
-  border: "1px solid rgba(0,119,255,0.22)",
+  backgroundColor: "var(--vkui--color_background_accent_themed, rgba(0,119,255,0.12))",
+  border: "1px solid var(--vkui--color_background_accent_themed, rgba(0,119,255,0.22))",
   borderRadius: 20, padding: "4px 10px 4px 12px",
-  fontSize: 13, fontWeight: 500, color: "#0077FF",
+  fontSize: 13, fontWeight: 500, color: "var(--vkui--color_accent_blue)",
   whiteSpace: "nowrap",
 };
 
@@ -76,7 +81,7 @@ function PillSelector({
                   {it.label}
                   <button
                     onClick={(e) => { e.stopPropagation(); toggle(id); }}
-                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", color: "#0077FF", opacity: 0.65 }}
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", color: "var(--vkui--color_accent_blue)", opacity: 0.65 }}
                   >
                     <Icon16Cancel width={12} height={12} />
                   </button>
@@ -88,10 +93,10 @@ function PillSelector({
                 onClick={() => setOpen(true)}
                 style={{
                   display: "inline-flex", alignItems: "center",
-                  backgroundColor: "rgba(0,119,255,0.07)",
-                  border: "1px solid rgba(0,119,255,0.18)",
+                  backgroundColor: "var(--vkui--color_background_accent_themed, rgba(0,119,255,0.07))",
+                  border: "1px solid var(--vkui--color_background_accent_themed, rgba(0,119,255,0.18))",
                   borderRadius: 20, padding: "4px 10px",
-                  fontSize: 12, fontWeight: 700, color: "#0077FF", cursor: "pointer",
+                  fontSize: 12, fontWeight: 700, color: "var(--vkui--color_accent_blue)", cursor: "pointer",
                 }}
               >
                 +{extra}
@@ -101,14 +106,14 @@ function PillSelector({
               onClick={() => setOpen((v) => !v)}
               style={{
                 background: "none", border: "none", cursor: "pointer",
-                color: "#0077FF", fontSize: 12, fontWeight: 600,
+                color: "var(--vkui--color_accent_blue)", fontSize: 12, fontWeight: 600,
                 display: "flex", alignItems: "center", gap: 2, padding: "4px 2px",
               }}
             >
               {open ? "Скрыть" : "Изменить"}
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
                 style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
-                <path d="M2 3.5L5 6.5L8 3.5" stroke="#0077FF" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M2 3.5L5 6.5L8 3.5" stroke="var(--vkui--color_accent_blue)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
           </>
@@ -124,17 +129,14 @@ function PillSelector({
           overflow: "hidden",
         }}>
           <div style={{ padding: "10px 12px 8px", borderBottom: "1px solid var(--vkui--color_separator_primary)" }}>
-            <input
-              autoFocus
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={searchPlaceholder}
-              style={{
-                width: "100%", background: "var(--vkui--color_background_secondary, #f5f5fa)",
-                border: "none", outline: "none", borderRadius: 10, padding: "8px 12px",
-                fontSize: 14, color: "var(--vkui--color_text_primary)", boxSizing: "border-box",
-              }}
-            />
+            <FormField>
+              <Input
+                autoFocus
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={searchPlaceholder}
+              />
+            </FormField>
           </div>
           {selectedItems.length > 0 && (
             <div style={{ padding: "8px 12px 6px" }}>
@@ -146,7 +148,7 @@ function PillSelector({
                     onClick={() => toggle(it.id)}
                     style={{
                       display: "inline-flex", alignItems: "center", gap: 3,
-                      backgroundColor: "#0077FF", borderRadius: 20,
+                      backgroundColor: "var(--vkui--color_accent_blue)", borderRadius: 20,
                       padding: "3px 9px 3px 11px", fontSize: 12, fontWeight: 600, color: "white", cursor: "pointer",
                     }}
                   >
@@ -190,15 +192,11 @@ function PillSelector({
 }
 
 function SectionLabel({ children }) {
-  return (
-    <Caption level="2" weight="1" normalize caps style={{ color: "#818C99", letterSpacing: "0.07em", display: "block", marginBottom: 10 }}>
-      {children}
-    </Caption>
-  );
+  return <Header mode="secondary">{children}</Header>;
 }
 
 function SectionDivider() {
-  return <div style={{ height: 1, backgroundColor: "var(--vkui--color_separator_primary, #f0f0f5)", margin: "0 -16px" }} />;
+  return <Separator />;
 }
 
 function TemplateCard({
@@ -384,31 +382,25 @@ function TemplateCard({
                   <Caption level="1" normalize style={{ color: "rgba(255,255,255,0.45)" }}>
                     Кол-во публикаций на аккаунт
                   </Caption>
-                  <input
-                    type="number"
-                    min={1}
-                    max={500}
-                    value={autoCountStr}
-                    onChange={(e) => {
-                      setAutoCountStr(e.target.value);
-                      const n = parseInt(e.target.value, 10);
-                      if (n >= 1 && n <= 500) onUpdateAutoCount(template.id, n);
-                    }}
-                    onFocus={() => setAutoFocused(true)}
-                    onBlur={() => {
-                      setAutoFocused(false);
-                      const n = parseInt(autoCountStr, 10);
-                      if (isNaN(n) || n < 1 || n > 500) setAutoCountStr(String(template.autoCount));
-                    }}
-                    style={{
-                      width: 64, background: "rgba(255,255,255,0.1)",
-                      border: `1.5px solid ${autoFocused ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.12)"}`,
-                      borderRadius: 10, padding: "6px 10px",
-                      fontSize: 15, fontWeight: 700, color: "white",
-                      textAlign: "center", outline: "none",
-                      appearance: "none", MozAppearance: "textfield",
-                    }}
-                  />
+                  <FormField style={{ width: 64 }}>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={500}
+                      value={autoCountStr}
+                      onChange={(e) => {
+                        setAutoCountStr(e.target.value);
+                        const n = parseInt(e.target.value, 10);
+                        if (n >= 1 && n <= 500) onUpdateAutoCount(template.id, n);
+                      }}
+                      onFocus={() => setAutoFocused(true)}
+                      onBlur={() => {
+                        setAutoFocused(false);
+                        const n = parseInt(autoCountStr, 10);
+                        if (isNaN(n) || n < 1 || n > 500) setAutoCountStr(String(template.autoCount));
+                      }}
+                    />
+                  </FormField>
                 </div>
               </>
             )}
@@ -472,22 +464,19 @@ function VariantManualRow({
     }}>
       <div style={{ flex: 1, minWidth: 0 }}>
         {editingName ? (
-          <input
-            autoFocus
-            value={nameVal}
-            onChange={(e) => setNameVal(e.target.value)}
-            onBlur={() => {
-              setEditingName(false);
-              if (nameVal.trim()) onChangeName(variant.id, nameVal.trim());
-              else setNameVal(variant.name);
-            }}
-            onKeyDown={(e) => { if (e.key === "Enter") e.target.blur(); }}
-            style={{
-              width: "100%", background: "none", border: "none",
-              borderBottom: "1.5px solid rgba(255,255,255,0.4)", outline: "none",
-              fontSize: 14, fontWeight: 600, color: "white", padding: "2px 0", boxSizing: "border-box",
-            }}
-          />
+          <FormField>
+            <Input
+              autoFocus
+              value={nameVal}
+              onChange={(e) => setNameVal(e.target.value)}
+              onBlur={() => {
+                setEditingName(false);
+                if (nameVal.trim()) onChangeName(variant.id, nameVal.trim());
+                else setNameVal(variant.name);
+              }}
+              onKeyDown={(e) => { if (e.key === "Enter") e.target.blur(); }}
+            />
+          </FormField>
         ) : (
           <span
             onClick={() => setEditingName(true)}
@@ -502,32 +491,25 @@ function VariantManualRow({
         )}
       </div>
 
-      <input
-        type="number"
-        min={1}
-        max={500}
-        value={countStr}
-        onChange={(e) => {
-          setCountStr(e.target.value);
-          const n = parseInt(e.target.value, 10);
-          if (n >= 1 && n <= 500) onChangeCount(variant.id, n);
-        }}
-        onFocus={() => setCountFocused(true)}
-        onBlur={() => {
-          setCountFocused(false);
-          const n = parseInt(countStr, 10);
-          if (isNaN(n) || n < 1 || n > 500) setCountStr(String(variant.count));
-        }}
-        style={{
-          width: 52, flexShrink: 0,
-          background: "rgba(255,255,255,0.1)",
-          border: `1.5px solid ${countFocused ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.12)"}`,
-          borderRadius: 9, padding: "5px 8px",
-          fontSize: 14, fontWeight: 700, color: "white",
-          textAlign: "center", outline: "none",
-          appearance: "none", MozAppearance: "textfield",
-        }}
-      />
+      <FormField style={{ width: 52, flexShrink: 0 }}>
+        <Input
+          type="number"
+          min={1}
+          max={500}
+          value={countStr}
+          onChange={(e) => {
+            setCountStr(e.target.value);
+            const n = parseInt(e.target.value, 10);
+            if (n >= 1 && n <= 500) onChangeCount(variant.id, n);
+          }}
+          onFocus={() => setCountFocused(true)}
+          onBlur={() => {
+            setCountFocused(false);
+            const n = parseInt(countStr, 10);
+            if (isNaN(n) || n < 1 || n > 500) setCountStr(String(variant.count));
+          }}
+        />
+      </FormField>
 
       {showDelete && (
         <button
@@ -558,22 +540,19 @@ function VariantAutoRow({
     }}>
       <div style={{ flex: 1, minWidth: 0 }}>
         {editingName ? (
-          <input
-            autoFocus
-            value={nameVal}
-            onChange={(e) => setNameVal(e.target.value)}
-            onBlur={() => {
-              setEditingName(false);
-              if (nameVal.trim()) onChangeName(variant.id, nameVal.trim());
-              else setNameVal(variant.name);
-            }}
-            onKeyDown={(e) => { if (e.key === "Enter") e.target.blur(); }}
-            style={{
-              width: "100%", background: "none", border: "none",
-              borderBottom: "1.5px solid rgba(255,255,255,0.4)", outline: "none",
-              fontSize: 14, fontWeight: 600, color: "white", padding: "2px 0", boxSizing: "border-box",
-            }}
-          />
+          <FormField>
+            <Input
+              autoFocus
+              value={nameVal}
+              onChange={(e) => setNameVal(e.target.value)}
+              onBlur={() => {
+                setEditingName(false);
+                if (nameVal.trim()) onChangeName(variant.id, nameVal.trim());
+                else setNameVal(variant.name);
+              }}
+              onKeyDown={(e) => { if (e.key === "Enter") e.target.blur(); }}
+            />
+          </FormField>
         ) : (
           <span
             onClick={() => setEditingName(true)}
