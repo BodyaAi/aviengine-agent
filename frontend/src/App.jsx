@@ -59,18 +59,15 @@ function AppInner() {
               display: "flex",
               alignItems: "flex-start",
               justifyContent: "center",
-              background:
-                theme === "dark"
-                  ? "linear-gradient(135deg, #0d1117 0%, #161b27 50%, #0a0f1a 100%)"
-                  : "linear-gradient(135deg, #e8edf5 0%, #f0f4fb 50%, #e4eaf4 100%)",
+              background: "var(--vkui--color_background)",
             }}
           >
             <div
               style={{
                 position: "fixed",
                 inset: 0,
-                backgroundColor:
-                  theme === "dark" ? "rgba(28,28,30,0.55)" : "rgba(245,245,250,0.55)",
+                backgroundColor: "var(--vkui--color_background)",
+                opacity: 0.55,
                 zIndex: 0,
               }}
             />
@@ -125,8 +122,8 @@ function AppInner() {
                       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
                         <path
                           d="M3 9.5L11 3L19 9.5V19C19 19.55 18.55 20 18 20H14V14H8V20H4C3.45 20 3 19.55 3 19V9.5Z"
-                          fill={active ? "#0077FF" : "none"}
-                          stroke={active ? "#0077FF" : "var(--vkui--color_icon_secondary)"}
+                          fill={active ? "var(--vkui--color_accent_blue)" : "none"}
+                          stroke={active ? "var(--vkui--color_accent_blue)" : "var(--vkui--color_icon_secondary)"}
                           strokeWidth="1.8"
                           strokeLinejoin="round"
                         />
@@ -144,13 +141,13 @@ function AppInner() {
                           width="16"
                           height="16"
                           rx="3"
-                          stroke={active ? "#0077FF" : "var(--vkui--color_icon_secondary)"}
+                          stroke={active ? "var(--vkui--color_accent_blue)" : "var(--vkui--color_icon_secondary)"}
                           strokeWidth="1.8"
-                          fill={active ? "#EEF4FF" : "none"}
+                          fill={active ? "var(--vkui--color_background_accent_themed)" : "none"}
                         />
                         <path
                           d="M7 8H15M7 11H15M7 14H11"
-                          stroke={active ? "#0077FF" : "var(--vkui--color_icon_secondary)"}
+                          stroke={active ? "var(--vkui--color_accent_blue)" : "var(--vkui--color_icon_secondary)"}
                           strokeWidth="1.7"
                           strokeLinecap="round"
                         />
@@ -182,7 +179,7 @@ function AppInner() {
                         fontSize: 11,
                         fontWeight: 500,
                         color:
-                          activeTab === tab.id ? "#0077FF" : "var(--vkui--color_text_secondary)",
+                          activeTab === tab.id ? "var(--vkui--color_accent_blue)" : "var(--vkui--color_text_secondary)",
                       }}
                     >
                       {tab.label}
@@ -197,6 +194,7 @@ function AppInner() {
         <SubscriptionSelectionWidget
           isOpen={accessModalOpen}
           onClose={() => setAccessModalOpen(false)}
+          appearance={theme}
         />
 
         {freeToastVisible && (
@@ -207,8 +205,8 @@ function AppInner() {
               left: "50%",
               transform: "translateX(-50%)",
               zIndex: 9998,
-              backgroundColor: "#1C1C1E",
-              color: "white",
+              backgroundColor: "var(--vkui--color_background_contrast, #1C1C1E)",
+              color: "var(--vkui--color_text_contrast, white)",
               borderRadius: 14,
               padding: "12px 20px",
               fontSize: 14,

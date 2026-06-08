@@ -23,6 +23,7 @@ import "@vkontakte/vkui/dist/vkui.css";
 export function SubscriptionSelectionWidget({
   isOpen,
   onClose,
+  appearance,
 }) {
   const [proPeriod, setProPeriod] = useState("3");
 
@@ -61,7 +62,7 @@ export function SubscriptionSelectionWidget({
   ];
 
   return createPortal(
-    <ConfigProvider appearance="light">
+    <ConfigProvider appearance={appearance}>
       <AdaptivityProvider>
         {/* ── Backdrop ── */}
         <div
