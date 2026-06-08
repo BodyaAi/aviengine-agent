@@ -3,7 +3,10 @@ import {
   ConfigProvider,
   AdaptivityProvider,
   AppRoot,
+  Tabbar,
+  TabbarItem,
 } from "@vkontakte/vkui";
+import { Icon28HomeOutline, Icon28DocumentOutline } from "@vkontakte/icons";
 import "@vkontakte/vkui/dist/vkui.css";
 import { AppProvider, useAppContext, SubscriptionStatus } from "./context/AppContext";
 import { MainTab } from "./components/MainTab";
@@ -97,96 +100,22 @@ function AppInner() {
                 )}
               </div>
 
-              <div
-                style={{
-                  position: "fixed",
-                  bottom: 0,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: "100%",
-                  maxWidth: 430,
-                  display: "flex",
-                  alignItems: "stretch",
-                  background: "var(--vkui--color_background)",
-                  borderTop: "1px solid var(--vkui--color_separator_primary)",
-                  paddingBottom: "env(safe-area-inset-bottom, 8px)",
-                  boxShadow: "0 -4px 24px rgba(0,0,0,0.08)",
-                  zIndex: 40,
-                }}
-              >
-                {[
-                  {
-                    id: "main",
-                    label: "Главная",
-                    icon: (active) => (
-                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                        <path
-                          d="M3 9.5L11 3L19 9.5V19C19 19.55 18.55 20 18 20H14V14H8V20H4C3.45 20 3 19.55 3 19V9.5Z"
-                          fill={active ? "var(--vkui--color_accent_blue)" : "none"}
-                          stroke={active ? "var(--vkui--color_accent_blue)" : "var(--vkui--color_icon_secondary)"}
-                          strokeWidth="1.8"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    ),
-                  },
-                  {
-                    id: "tasks",
-                    label: "Публикация",
-                    icon: (active) => (
-                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                        <rect
-                          x="3"
-                          y="3"
-                          width="16"
-                          height="16"
-                          rx="3"
-                          stroke={active ? "var(--vkui--color_accent_blue)" : "var(--vkui--color_icon_secondary)"}
-                          strokeWidth="1.8"
-                          fill={active ? "var(--vkui--color_background_accent_themed)" : "none"}
-                        />
-                        <path
-                          d="M7 8H15M7 11H15M7 14H11"
-                          stroke={active ? "var(--vkui--color_accent_blue)" : "var(--vkui--color_icon_secondary)"}
-                          strokeWidth="1.7"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    ),
-                  },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    style={{
-                      flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 4,
-                      paddingTop: 10,
-                      paddingBottom: 8,
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      transition: "opacity 0.2s",
-                    }}
-                  >
-                    {tab.icon(activeTab === tab.id)}
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 500,
-                        color:
-                          activeTab === tab.id ? "var(--vkui--color_accent_blue)" : "var(--vkui--color_text_secondary)",
-                      }}
-                    >
-                      {tab.label}
-                    </span>
-                  </button>
-                ))}
-              </div>
+              <Tabbar>
+                <TabbarItem
+                  selected={activeTab === "main"}
+                  onClick={() => setActiveTab("main")}
+                  text="Главная"
+                >
+                  <Icon28HomeOutline />
+                </TabbarItem>
+                <TabbarItem
+                  selected={activeTab === "tasks"}
+                  onClick={() => setActiveTab("tasks")}
+                  text="Публикация"
+                >
+                  <Icon28DocumentOutline />
+                </TabbarItem>
+              </Tabbar>
             </div>
           </div>
         </AppRoot>
