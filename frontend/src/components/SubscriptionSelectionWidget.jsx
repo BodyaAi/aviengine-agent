@@ -147,7 +147,7 @@ export function SubscriptionSelectionWidget({
                    level="2"
                    weight="1"
                    normalize
-                   style={{ color: "#FFFFFF", display: "block" }}
+                   style={{ color: "var(--vkui--color_text_primary)", display: "block" }}
                  >
                    Хватит нянчиться с выкладчиками.
                  </Title>
@@ -164,7 +164,7 @@ export function SubscriptionSelectionWidget({
 
                 <Text
                   normalize
-                  style={{ color: "#818C99", display: "block" }}
+                  style={{ color: "var(--vkui--color_text_secondary)", display: "block" }}
                 >
                   Для тех, кто хочет освободить время
                 </Text>
@@ -494,7 +494,7 @@ export function SubscriptionSelectionWidget({
                         { label: "3 МЕСЯЦА", value: "3" },
                       ]}
                       style={{
-                        backgroundColor: "rgba(0,0,0,0.28)",
+                        backgroundColor: "var(--vkui--color_background_secondary)",
                         borderRadius: 12,
                       }}
                     />
@@ -613,7 +613,7 @@ export function SubscriptionSelectionWidget({
                 caps
                 style={{
                   display: "block",
-                  color: "#99A2AD",
+                  color: "var(--vkui--color_text_secondary)",
                   letterSpacing: "0.1em",
                   opacity: 0.55,
                 }}

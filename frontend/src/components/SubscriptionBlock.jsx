@@ -6,13 +6,13 @@ function SubscriptionNone({ onSubscribe }) {
     <Card mode="shadow" style={{ borderRadius: 20 }}>
       <Div style={{ padding: "16px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
         <div>
-          <Caption level="1" weight="1" normalize caps style={{ color: "#818C99", letterSpacing: "0.07em", display: "block" }}>
+          <Caption level="1" weight="1" normalize caps style={{ color: "var(--vkui--color_text_secondary)", letterSpacing: "0.07em", display: "block" }}>
             Подписка
           </Caption>
           <Title level="3" weight="2" normalize style={{ marginTop: 4, display: "block" }}>
             Не оформлена
           </Title>
-          <Caption level="1" normalize style={{ color: "#818C99", display: "block", marginTop: 2 }}>
+          <Caption level="1" normalize style={{ color: "var(--vkui--color_text_secondary)", display: "block", marginTop: 2 }}>
             Разблокируйте AI-агента
           </Caption>
         </div>
