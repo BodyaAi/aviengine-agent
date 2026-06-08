@@ -5,8 +5,9 @@ import {
   AppRoot,
   Tabbar,
   TabbarItem,
+  Snackbar,
 } from "@vkontakte/vkui";
-import { Icon28HomeOutline, Icon28DocumentOutline } from "@vkontakte/icons";
+import { Icon28HomeOutline, Icon28DocumentOutline, Icon16InfoCircle } from "@vkontakte/icons";
 import "@vkontakte/vkui/dist/vkui.css";
 import { AppProvider, useAppContext, SubscriptionStatus } from "./context/AppContext";
 import { MainTab } from "./components/MainTab";
@@ -35,7 +36,6 @@ function AppInner() {
     e.stopPropagation();
     if (subscriptionStatus === SubscriptionStatus.FREE) {
       setFreeToastVisible(true);
-      setTimeout(() => setFreeToastVisible(false), 2500);
     } else {
       setAccessModalOpen(true);
     }
@@ -127,27 +127,13 @@ function AppInner() {
         />
 
         {freeToastVisible && (
-          <div
-            style={{
-              position: "fixed",
-              bottom: 90,
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 9998,
-              backgroundColor: "var(--vkui--color_background_contrast, #1C1C1E)",
-              color: "var(--vkui--color_text_contrast, white)",
-              borderRadius: 14,
-              padding: "12px 20px",
-              fontSize: 14,
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-              pointerEvents: "none",
-              animation: "avify-fadein 0.2s ease",
-            }}
+          <Snackbar
+            onClose={() => setFreeToastVisible(false)}
+            before={<Icon16InfoCircle />}
+            duration={2500}
           >
             Начните пробный период
-          </div>
+          </Snackbar>
         )}
       </AdaptivityProvider>
     </ConfigProvider>
