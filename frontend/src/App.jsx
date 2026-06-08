@@ -15,7 +15,7 @@ import { WorkTab } from "./components/WorkTab";
 import { SubscriptionSelectionWidget } from "./components/SubscriptionSelectionWidget";
 
 function AppInner() {
-  const { theme, subscriptionStatus } = useAppContext();
+  const { theme, scheme, subscriptionStatus } = useAppContext();
   const [activeTab, setActiveTab] = useState("main");
   const [liveTasks, setLiveTasks] = useState([]);
   const [accessModalOpen, setAccessModalOpen] = useState(false);
@@ -52,9 +52,9 @@ function AppInner() {
   const clearAllTasks = () => setLiveTasks([]);
 
   return (
-    <ConfigProvider appearance={theme}>
+    <ConfigProvider appearance={theme} scheme={scheme}>
       <AdaptivityProvider>
-        <AppRoot mode="full" style={{ background: "transparent" }}>
+        <AppRoot appearance={theme} mode="full" style={{ background: "transparent" }}>
           <div
             style={{
               position: "relative",

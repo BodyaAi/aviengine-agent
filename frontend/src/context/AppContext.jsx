@@ -19,6 +19,7 @@ const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
   const [theme, setTheme] = useState(AppTheme.LIGHT);
+  const [scheme, setScheme] = useState("bright_light");
   const [subscriptionStatus, setSubscriptionStatus] = useState(SubscriptionStatus.PRO);
 
   useEffect(() => {
@@ -26,8 +27,9 @@ export function AppProvider({ children }) {
 
     const handleUpdateConfig = (event) => {
       if (event.detail.type === 'VKWebAppUpdateConfig') {
-        const { appearance } = event.detail.data;
+        const { appearance, scheme: newScheme } = event.detail.data;
         setTheme(appearance === 'dark' ? AppTheme.DARK : AppTheme.LIGHT);
+        if (newScheme) setScheme(newScheme);
       }
     };
 
@@ -38,7 +40,7 @@ export function AppProvider({ children }) {
   }, []);
 
   return (
-    <AppContext.Provider value={{ theme, setTheme, subscriptionStatus, setSubscriptionStatus }}>
+    <AppContext.Provider value={{ theme, scheme, setTheme, subscriptionStatus, setSubscriptionStatus }}>
       {children}
     </AppContext.Provider>
   );
@@ -49,4 +51,3 @@ export function useAppContext() {
   if (!ctx) throw new Error("useAppContext must be used within AppProvider");
   return ctx;
 }
-
