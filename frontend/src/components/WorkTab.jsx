@@ -11,10 +11,11 @@ import {
   FormField,
   Separator,
   Header,
+  IconButton,
 } from "@vkontakte/vkui";
 import {
   Icon20Add,
-  Icon20DeleteOutline,
+  Icon28DeleteOutline,
   Icon20ArticleOutline,
   Icon16Cancel,
 } from "@vkontakte/icons";
@@ -224,9 +225,6 @@ function TemplateCard({
 
   const switchMode = (m) => {
     onUpdateMode(template.id, m);
-    if (m === "auto") {
-      onUpdateVariants(template.id, [{ id: Date.now(), name: "Базовый", count: template.autoCount }]);
-    }
   };
 
   return (
@@ -252,16 +250,13 @@ function TemplateCard({
               Активен
             </span>
           )}
-          <button
+          <IconButton
+            mode="danger"
             onClick={() => onDelete(template.id)}
-            style={{
-              flexShrink: 0, background: "var(--vkui--color_background_negative, rgba(239,68,68,0.08))", border: "none",
-              borderRadius: 9, width: 30, height: 30, cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}
+            aria-label="Удалить шаблон"
           >
-            <Icon20DeleteOutline style={{ color: "var(--vkui--color_accent_red)", width: 16, height: 16 }} />
-          </button>
+            <Icon28DeleteOutline />
+          </IconButton>
         </div>
 
         <SectionDivider />
@@ -300,10 +295,10 @@ function TemplateCard({
             padding: "14px 14px 0",
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <Text weight="2" normalize style={{ color: "var(--vkui--color_text_contrast)" }}>Варианты объявлений</Text>
+              <Text weight="2" normalize style={{ color: "var(--vkui--color_text_primary)" }}>Варианты объявлений</Text>
               <div style={{
                 display: "inline-flex", alignItems: "center",
-                backgroundColor: "rgba(255,255,255,0.08)",
+                backgroundColor: "var(--vkui--color_background_secondary)",
                 borderRadius: 20, padding: 3,
               }}>
                 {["auto", "manual"].map((m) => (
@@ -314,7 +309,7 @@ function TemplateCard({
                       padding: "5px 13px", border: "none", cursor: "pointer",
                       fontSize: 12, fontWeight: 700, letterSpacing: "0.03em",
                       backgroundColor: template.mode === m ? "var(--vkui--color_accent_blue)" : "transparent",
-                      color: template.mode === m ? "var(--vkui--color_text_contrast)" : "rgba(255,255,255,0.4)",
+                      color: template.mode === m ? "var(--vkui--color_text_contrast)" : "var(--vkui--color_text_primary)",
                       borderRadius: 16,
                       transition: "all 0.15s",
                     }}
@@ -330,9 +325,9 @@ function TemplateCard({
                 <div style={{
                   display: "flex", alignItems: "center", justifyContent: "center",
                   padding: "14px 12px",
-                  backgroundColor: "rgba(255,255,255,0.04)",
+                  backgroundColor: "var(--vkui--color_background_secondary)",
                   borderRadius: 12,
-                  border: "1.5px dashed rgba(255,255,255,0.12)",
+                  border: "1.5px dashed var(--vkui--color_separator_primary)",
                 }}>
                   <Caption level="1" normalize style={{ color: "var(--vkui--color_text_secondary)", textAlign: "center" }}>
                     Создайте первый вариант объявления
@@ -377,9 +372,9 @@ function TemplateCard({
 
             {template.mode === "auto" && (
               <>
-                <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.07)", margin: "0 -14px" }} />
+                <div style={{ height: 1, backgroundColor: "var(--vkui--color_separator_primary)", margin: "0 -14px" }} />
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0 14px" }}>
-                  <Caption level="1" normalize style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <Caption level="1" normalize style={{ color: "var(--vkui--color_text_secondary)" }}>
                     Кол-во публикаций на аккаунт
                   </Caption>
                   <FormField style={{ width: 64 }}>
@@ -421,12 +416,7 @@ function TemplateCard({
               size="m"
               stretched
               onClick={() => onDeactivate(template.id)}
-              style={{
-                borderRadius: 12,
-                backgroundColor: "var(--vkui--color_background_negative, rgba(239,68,68,0.08))",
-                color: "var(--vkui--color_accent_red)",
-                border: "1px solid var(--vkui--color_separator_primary, rgba(239,68,68,0.18))",
-              }}
+              style={{ borderRadius: 12 }}
             >
               Деактивировать
             </Button>
@@ -481,7 +471,7 @@ function VariantManualRow({
           <span
             onClick={() => setEditingName(true)}
             style={{
-              fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.85)",
+              fontSize: 14, fontWeight: 600, color: "var(--vkui--color_text_primary)",
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               display: "block", cursor: "text",
             }}
@@ -519,7 +509,7 @@ function VariantManualRow({
             padding: 2, display: "flex", alignItems: "center", opacity: 0.4,
           }}
         >
-          <Icon16Cancel style={{ color: "var(--vkui--color_text_contrast)" }} />
+          <Icon16Cancel style={{ color: "var(--vkui--color_text_primary)" }} />
         </button>
       )}
     </div>
@@ -557,7 +547,7 @@ function VariantAutoRow({
           <span
             onClick={() => setEditingName(true)}
             style={{
-              fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,0.85)",
+              fontSize: 14, fontWeight: 600, color: "var(--vkui--color_text_primary)",
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               display: "block", cursor: "text",
             }}
@@ -574,7 +564,7 @@ function VariantAutoRow({
             padding: 2, display: "flex", alignItems: "center", opacity: 0.4,
           }}
         >
-          <Icon16Cancel style={{ color: "var(--vkui--color_text_contrast)" }} />
+          <Icon16Cancel style={{ color: "var(--vkui--color_text_primary)" }} />
         </button>
       )}
     </div>
@@ -586,14 +576,14 @@ function EmptyTemplates({ onCreate }) {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "28px 16px 20px", textAlign: "center" }}>
       <div style={{
         width: 54, height: 54, borderRadius: 16,
-        backgroundColor: "rgba(0,119,255,0.08)",
+        backgroundColor: "var(--vkui--color_background_accent_themed)",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
           <rect x="3" y="4" width="18" height="16" rx="3" stroke="var(--vkui--color_accent_blue)" strokeWidth="1.6" />
           <path d="M7 9H17M7 13H13" stroke="var(--vkui--color_accent_blue)" strokeWidth="1.5" strokeLinecap="round" />
           <circle cx="19" cy="19" r="4" fill="var(--vkui--color_accent_blue)" />
-          <path d="M19 17V21M17 19H21" stroke="var(--vkui--color_text_contrast)" strokeWidth="1.5" strokeLinecap="round" />
+          <path d="M19 17V21M17 19H21" stroke="var(--vkui--color_icon_secondary)" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </div>
       <div>
