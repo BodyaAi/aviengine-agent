@@ -23,7 +23,7 @@ import Toast from "./ui/Toast";
 const TAG_BLUE = {
   display: "inline-flex", alignItems: "center", gap: 4,
   backgroundColor: "var(--vkui--color_background_accent_themed, rgba(0,119,255,0.12))",
-  border: "1px solid var(--vkui--color_background_accent_themed, rgba(0,119,255,0.22))",
+  border: "1px solid var(--vkui--color_separator_accent, rgba(0,119,255,0.22))",
   borderRadius: 20, padding: "4px 10px 4px 12px",
   fontSize: 13, fontWeight: 500, color: "var(--vkui--color_accent_blue)",
   whiteSpace: "nowrap",
@@ -66,7 +66,7 @@ function PillSelector({
               background: "none",
               border: "1.5px dashed var(--vkui--color_separator_primary, #e0e0ea)",
               borderRadius: 20, padding: "5px 13px",
-              cursor: "pointer", color: "#818C99", fontSize: 13, fontWeight: 500,
+              cursor: "pointer", color: "var(--vkui--color_text_secondary)", fontSize: 13, fontWeight: 500,
             }}
           >
             + {placeholder}
@@ -140,7 +140,7 @@ function PillSelector({
           </div>
           {selectedItems.length > 0 && (
             <div style={{ padding: "8px 12px 6px" }}>
-              <Caption level="2" normalize caps style={{ color: "#818C99", letterSpacing: "0.06em", display: "block", marginBottom: 6 }}>Выбрано</Caption>
+              <Caption level="2" normalize caps style={{ color: "var(--vkui--color_text_secondary)", letterSpacing: "0.06em", display: "block", marginBottom: 6 }}>Выбрано</Caption>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
                 {selectedItems.map((it) => (
                   <span
@@ -149,7 +149,7 @@ function PillSelector({
                     style={{
                       display: "inline-flex", alignItems: "center", gap: 3,
                       backgroundColor: "var(--vkui--color_accent_blue)", borderRadius: 20,
-                      padding: "3px 9px 3px 11px", fontSize: 12, fontWeight: 600, color: "white", cursor: "pointer",
+                      padding: "3px 9px 3px 11px", fontSize: 12, fontWeight: 600, color: "var(--vkui--color_text_contrast)", cursor: "pointer",
                     }}
                   >
                     {it.label} <Icon16Cancel width={10} height={10} />
@@ -161,7 +161,7 @@ function PillSelector({
           )}
           <div style={{ maxHeight: 200, overflowY: "auto" }}>
             {filtered.length === 0 && (
-              <Caption level="1" normalize style={{ display: "block", color: "#818C99", padding: "14px 16px" }}>
+              <Caption level="1" normalize style={{ display: "block", color: "var(--vkui--color_text_secondary)", padding: "14px 16px" }}>
                 Нет совпадений
               </Caption>
             )}
@@ -179,7 +179,7 @@ function PillSelector({
                 <div>
                   <Caption level="1" normalize style={{ color: "var(--vkui--color_text_primary)", display: "block" }}>{it.label}</Caption>
                   {it.sublabel && (
-                    <Caption level="2" normalize style={{ color: "#818C99", display: "block" }}>{it.sublabel}</Caption>
+                    <Caption level="2" normalize style={{ color: "var(--vkui--color_text_secondary)", display: "block" }}>{it.sublabel}</Caption>
                   )}
                 </div>
               </button>
@@ -235,18 +235,18 @@ function TemplateCard({
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 0 13px" }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-            backgroundColor: isActive ? "rgba(34,197,94,0.12)" : "rgba(0,119,255,0.1)",
+            backgroundColor: isActive ? "var(--vkui--color_background_positive, rgba(34,197,94,0.12))" : "var(--vkui--color_background_accent_themed, rgba(0,119,255,0.1))",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <Icon20ArticleOutline style={{ color: isActive ? "#22c55e" : "#0077FF" }} />
+            <Icon20ArticleOutline style={{ color: isActive ? "var(--vkui--color_accent_green)" : "var(--vkui--color_accent_blue)" }} />
           </div>
           <Text weight="2" normalize style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>
             {template.name}
           </Text>
           {isActive && (
             <span style={{
-              fontSize: 11, fontWeight: 700, color: "#22c55e",
-              backgroundColor: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)",
+              fontSize: 11, fontWeight: 700,               color: "var(--vkui--color_accent_green)",
+              backgroundColor: "var(--vkui--color_background_positive, rgba(34,197,94,0.1))", border: "1px solid rgba(34,197,94,0.25)",
               borderRadius: 8, padding: "3px 8px", flexShrink: 0,
             }}>
               Активен
@@ -255,12 +255,12 @@ function TemplateCard({
           <button
             onClick={() => onDelete(template.id)}
             style={{
-              flexShrink: 0, background: "rgba(239,68,68,0.08)", border: "none",
+              flexShrink: 0, background: "var(--vkui--color_background_negative, rgba(239,68,68,0.08))", border: "none",
               borderRadius: 9, width: 30, height: 30, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}
           >
-            <Icon20DeleteOutline style={{ color: "#ef4444", width: 16, height: 16 }} />
+            <Icon20DeleteOutline style={{ color: "var(--vkui--color_accent_red)", width: 16, height: 16 }} />
           </button>
         </div>
 
@@ -294,13 +294,13 @@ function TemplateCard({
 
         <div style={{ padding: "12px 0 14px" }}>
           <div style={{
-            backgroundColor: "#111827",
+            backgroundColor: "var(--vkui--color_background_tertiary)",
             borderRadius: 18,
             overflow: "hidden",
             padding: "14px 14px 0",
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <Text weight="2" normalize style={{ color: "white" }}>Варианты объявлений</Text>
+              <Text weight="2" normalize style={{ color: "var(--vkui--color_text_contrast)" }}>Варианты объявлений</Text>
               <div style={{
                 display: "inline-flex", alignItems: "center",
                 backgroundColor: "rgba(255,255,255,0.08)",
@@ -313,8 +313,8 @@ function TemplateCard({
                     style={{
                       padding: "5px 13px", border: "none", cursor: "pointer",
                       fontSize: 12, fontWeight: 700, letterSpacing: "0.03em",
-                      backgroundColor: template.mode === m ? "#4F7EF7" : "transparent",
-                      color: template.mode === m ? "white" : "rgba(255,255,255,0.4)",
+                      backgroundColor: template.mode === m ? "var(--vkui--color_accent_blue)" : "transparent",
+                      color: template.mode === m ? "var(--vkui--color_text_contrast)" : "rgba(255,255,255,0.4)",
                       borderRadius: 16,
                       transition: "all 0.15s",
                     }}
@@ -334,7 +334,7 @@ function TemplateCard({
                   borderRadius: 12,
                   border: "1.5px dashed rgba(255,255,255,0.12)",
                 }}>
-                  <Caption level="1" normalize style={{ color: "rgba(255,255,255,0.35)", textAlign: "center" }}>
+                  <Caption level="1" normalize style={{ color: "var(--vkui--color_text_secondary)", textAlign: "center" }}>
                     Создайте первый вариант объявления
                   </Caption>
                 </div>
@@ -367,7 +367,7 @@ function TemplateCard({
               style={{
                 display: "flex", alignItems: "center", gap: 5,
                 background: "none", border: "none", cursor: "pointer",
-                color: "#4F7EF7", fontSize: 13, fontWeight: 600,
+                color: "var(--vkui--color_accent_blue)", fontSize: 13, fontWeight: 600,
                 padding: "4px 0 12px",
               }}
             >
@@ -423,9 +423,9 @@ function TemplateCard({
               onClick={() => onDeactivate(template.id)}
               style={{
                 borderRadius: 12,
-                backgroundColor: "rgba(239,68,68,0.08)",
-                color: "#DC2626",
-                border: "1px solid rgba(239,68,68,0.18)",
+                backgroundColor: "var(--vkui--color_background_negative, rgba(239,68,68,0.08))",
+                color: "var(--vkui--color_accent_red)",
+                border: "1px solid var(--vkui--color_separator_primary, rgba(239,68,68,0.18))",
               }}
             >
               Деактивировать
@@ -459,7 +459,7 @@ function VariantManualRow({
   return (
     <div style={{
       display: "flex", alignItems: "center", gap: 8,
-      backgroundColor: "#1C2B47",
+      backgroundColor: "var(--vkui--color_background_secondary)",
       borderRadius: 12, padding: "11px 12px",
     }}>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -519,7 +519,7 @@ function VariantManualRow({
             padding: 2, display: "flex", alignItems: "center", opacity: 0.4,
           }}
         >
-          <Icon16Cancel style={{ color: "white" }} />
+          <Icon16Cancel style={{ color: "var(--vkui--color_text_contrast)" }} />
         </button>
       )}
     </div>
@@ -535,7 +535,7 @@ function VariantAutoRow({
   return (
     <div style={{
       display: "flex", alignItems: "center", gap: 8,
-      backgroundColor: "#1C2B47",
+      backgroundColor: "var(--vkui--color_background_secondary)",
       borderRadius: 12, padding: "11px 12px",
     }}>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -574,7 +574,7 @@ function VariantAutoRow({
             padding: 2, display: "flex", alignItems: "center", opacity: 0.4,
           }}
         >
-          <Icon16Cancel style={{ color: "white" }} />
+          <Icon16Cancel style={{ color: "var(--vkui--color_text_contrast)" }} />
         </button>
       )}
     </div>
@@ -590,15 +590,15 @@ function EmptyTemplates({ onCreate }) {
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="4" width="18" height="16" rx="3" stroke="#0077FF" strokeWidth="1.6" />
-          <path d="M7 9H17M7 13H13" stroke="#0077FF" strokeWidth="1.5" strokeLinecap="round" />
-          <circle cx="19" cy="19" r="4" fill="#0077FF" />
-          <path d="M19 17V21M17 19H21" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+          <rect x="3" y="4" width="18" height="16" rx="3" stroke="var(--vkui--color_accent_blue)" strokeWidth="1.6" />
+          <path d="M7 9H17M7 13H13" stroke="var(--vkui--color_accent_blue)" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="19" cy="19" r="4" fill="var(--vkui--color_accent_blue)" />
+          <path d="M19 17V21M17 19H21" stroke="var(--vkui--color_text_contrast)" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </div>
       <div>
         <Text weight="2" normalize style={{ display: "block", marginBottom: 6 }}>Шаблонов пока нет</Text>
-        <Caption level="1" normalize style={{ color: "#818C99", lineHeight: 1.55, display: "block" }}>
+        <Caption level="1" normalize style={{ color: "var(--vkui--color_text_secondary)", lineHeight: 1.55, display: "block" }}>
           Создайте шаблон — AI‑агент запишет ваши действия и будет автоматически публиковать объявления.
         </Caption>
       </div>
@@ -712,15 +712,15 @@ export function WorkTab({ addTask, liveTasks, accounts = [], cities = [], initia
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{
-                  width: 32, height: 32, borderRadius: 10, backgroundColor: "#EEF4FF",
+                  width: 32, height: 32, borderRadius: 10,                   backgroundColor: "var(--vkui--color_background_accent_themed)",
                   display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}>
-                  <Icon20ArticleOutline style={{ color: "#0077FF" }} />
+                  <Icon20ArticleOutline style={{ color: "var(--vkui--color_accent_blue)" }} />
                 </div>
                 <div>
                   <Title level="3" weight="2" normalize>Шаблоны</Title>
                   {templateCount > 0 && (
-                    <Caption level="1" normalize style={{ color: "#818C99", display: "block", marginTop: 1 }}>
+                    <Caption level="1" normalize style={{ color: "var(--vkui--color_text_secondary)", display: "block", marginTop: 1 }}>
                       {templateCount} {pluralTemplate}
                     </Caption>
                   )}
