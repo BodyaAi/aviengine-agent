@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import bridge from '@vkontakte/vk-bridge';
 
 export const AppTheme = {
   LIGHT: "light",
@@ -20,6 +21,22 @@ export function AppProvider({ children }) {
   const [theme, setTheme] = useState(AppTheme.LIGHT);
   const [subscriptionStatus, setSubscriptionStatus] = useState(SubscriptionStatus.PRO);
 
+  useEffect(() => {
+    bridge.send('VKWebAppInit');
+
+    const handleUpdateConfig = (event) => {
+      if (event.detail.type === 'VKWebAppUpdateConfig') {
+        const { appearance } = event.detail.data;
+        setTheme(appearance === 'dark' ? AppTheme.DARK : AppTheme.LIGHT);
+      }
+    };
+
+    bridge.subscribe(handleUpdateConfig);
+    return () => {
+      bridge.unsubscribe(handleUpdateConfig);
+    };
+  }, []);
+
   return (
     <AppContext.Provider value={{ theme, setTheme, subscriptionStatus, setSubscriptionStatus }}>
       {children}
@@ -32,3 +49,4 @@ export function useAppContext() {
   if (!ctx) throw new Error("useAppContext must be used within AppProvider");
   return ctx;
 }
+
