@@ -130,7 +130,7 @@ alwaysApply: false
 Обязанность строго ориентироваться на референсный прототип,
 расположенный в каталоге:
 
-`docs/prototype/vk-mini-app-legacy/`
+amiflow-agent/docs/vk-mini-app-legacy/Prototype/AmiFlow\ VK\ Mini\ App\ Design/
 
 ### Обязательные требования:
 - прототип является **эталонной реализацией**, определяющей структуру экранов, навигацию, логику и UX‑паттерны;
