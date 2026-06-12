@@ -1,0 +1,208 @@
+/* ─── Avify — Liquid Glass Design System ───────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: 16px; }
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.35); }
+
+/* ── Dot-grid overlay ──────────────────────────────────────────────────────── */
+.avify-dot-grid {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.13) 1.2px, transparent 1.2px);
+  background-size: 30px 30px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   LIQUID GLASS — iOS 26 style. Three depth levels.
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* Level 1: White card glass (content cards) */
+.glass {
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(64px) saturate(200%) brightness(1.06) !important;
+  -webkit-backdrop-filter: blur(64px) saturate(200%) brightness(1.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.82) !important;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 1),       /* top specular */
+    inset 0 -0.5px 0 rgba(18, 68, 245, 0.07),     /* bottom blue tint */
+    inset 1px 0 0 rgba(255, 255, 255, 0.45),      /* left edge */
+    inset -1px 0 0 rgba(255, 255, 255, 0.25),     /* right edge */
+    0 24px 60px rgba(18, 68, 245, 0.15),           /* blue depth glow */
+    0 4px 16px rgba(0, 0, 0, 0.06) !important;    /* real shadow */
+  transition: box-shadow 0.3s ease, transform 0.22s ease !important;
+}
+
+.glass:hover {
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 1),
+    inset 0 -0.5px 0 rgba(18, 68, 245, 0.09),
+    inset 1px 0 0 rgba(255, 255, 255, 0.5),
+    inset -1px 0 0 rgba(255, 255, 255, 0.3),
+    0 32px 72px rgba(18, 68, 245, 0.2),
+    0 6px 20px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Level 2: Frosted dark glass (sidebar, overlays) */
+.glass-dark {
+  background: rgba(8, 28, 110, 0.42) !important;
+  backdrop-filter: blur(64px) saturate(200%) brightness(1.1) !important;
+  -webkit-backdrop-filter: blur(64px) saturate(200%) brightness(1.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.13) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Level 3: Ultra-thin glass (nav items, small pills) */
+.glass-thin {
+  background: rgba(255, 255, 255, 0.13) !important;
+  backdrop-filter: blur(32px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -0.5px 0 rgba(0, 20, 100, 0.1),
+    0 4px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   GLASS BUTTONS — Volumetric, liquid feel
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* Blue glass button — the primary CTA */
+.avify-cta-btn {
+  background: linear-gradient(
+    170deg,
+    rgba(90, 150, 255, 0.95) 0%,
+    rgba(24, 76, 255, 1) 40%,
+    rgba(12, 52, 220, 1) 100%
+  ) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.38) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.5),   /* top light refraction */
+    inset 0 -1.5px 0 rgba(0, 0, 150, 0.25),     /* bottom depth */
+    inset 1px 0 0 rgba(255, 255, 255, 0.15),    /* left edge */
+    0 8px 28px rgba(18, 68, 245, 0.5),           /* blue outer glow */
+    0 2px 8px rgba(0, 0, 0, 0.14) !important;   /* depth shadow */
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 100, 0.3) !important;
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.avify-cta-btn:hover:not(:disabled) {
+  background: linear-gradient(
+    170deg,
+    rgba(100, 160, 255, 0.98) 0%,
+    rgba(30, 85, 255, 1) 40%,
+    rgba(18, 60, 235, 1) 100%
+  ) !important;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1.5px 0 rgba(0, 0, 150, 0.3),
+    inset 1px 0 0 rgba(255, 255, 255, 0.2),
+    0 12px 36px rgba(18, 68, 245, 0.6),
+    0 4px 12px rgba(0, 0, 0, 0.16) !important;
+  transform: translateY(-2px) scale(1.01) !important;
+}
+
+.avify-cta-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98) !important;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 150, 0.25),
+    0 4px 16px rgba(18, 68, 245, 0.35) !important;
+}
+
+.avify-cta-btn.avify-cta-pill { border-radius: 999px !important; }
+
+/* ── Subscription badges ───────────────────────────────────────────────────── */
+.avify-pro-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 18px; border-radius: 999px;
+  background: linear-gradient(120deg, #1244F5 0%, #3B82F6 50%, #1244F5 100%);
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    0 4px 20px rgba(18,68,245,0.45);
+}
+.avify-lite-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 18px; border-radius: 999px;
+  background: linear-gradient(120deg, #7c3aed 0%, #38bdf8 100%);
+  border: 1px solid rgba(255,255,255,0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    0 4px 20px rgba(124,58,237,0.4);
+}
+
+/* ── Input focus ring ──────────────────────────────────────────────────────── */
+input:focus {
+  outline: none;
+  border-color: rgba(18,68,245,0.5) !important;
+  box-shadow: 0 0 0 3px rgba(18,68,245,0.14), inset 0 1px 0 rgba(255,255,255,0.8) !important;
+}
+
+/* ── Sidebar nav hover ─────────────────────────────────────────────────────── */
+aside nav button:hover {
+  background: rgba(255,255,255,0.1) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2) !important;
+}
+
+/* ── Keyframes ─────────────────────────────────────────────────────────────── */
+@keyframes avify-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes avify-fadein {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Aurora bg ─────────────────────────────────────────────────────────────── */
+.avify-aurora-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse at 15% 60%, rgba(140,180,255,0.38) 0%, transparent 52%),
+    radial-gradient(ellipse at 85% 15%, rgba(180,220,255,0.3) 0%, transparent 48%),
+    radial-gradient(ellipse at 55% 90%, rgba(100,150,255,0.24) 0%, transparent 42%);
+  animation: avify-aurora-drift 12s ease-in-out infinite alternate;
+}
+@keyframes avify-aurora-drift {
+  from { opacity: 1; transform: scale(1) rotate(0deg); }
+  to   { opacity: 0.82; transform: scale(1.07) rotate(1.5deg); }
+}
+
+/* ── Mesh grid ─────────────────────────────────────────────────────────────── */
+.avify-mesh-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ── Shimmer sweep ─────────────────────────────────────────────────────────── */
+.avify-shimmer { position: relative; overflow: hidden; }
+.avify-shimmer::after {
+  content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+  animation: avify-shimmer-sweep 6s ease-in-out infinite; pointer-events: none;
+}
+@keyframes avify-shimmer-sweep {
+  0%  { left: -55%; }
+  65% { left: 115%; }
+  100%{ left: 115%; }
+}
