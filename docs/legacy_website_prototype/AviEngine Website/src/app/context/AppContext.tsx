@@ -20,7 +20,7 @@ const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<AppTheme>("light");
-  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>("pro");
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>("free");
 
   return (
     <AppContext.Provider value={{ theme, setTheme, subscriptionStatus, setSubscriptionStatus }}>

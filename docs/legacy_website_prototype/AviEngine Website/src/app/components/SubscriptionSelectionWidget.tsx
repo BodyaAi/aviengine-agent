@@ -2,9 +2,14 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Check, Plus, Star, Zap, Copy } from "lucide-react";
 
-interface Props { isOpen: boolean; onClose: () => void }
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  /** DEV: called when user selects a plan (applies it to global state) */
+  onSelectPlan?: (plan: "lite" | "pro") => void;
+}
 
-export function SubscriptionSelectionWidget({ isOpen, onClose }: Props) {
+export function SubscriptionSelectionWidget({ isOpen, onClose, onSelectPlan }: Props) {
   const [proPeriod, setProPeriod] = useState<"1"|"3">("3");
   if (!isOpen) return null;
 
@@ -82,7 +87,11 @@ export function SubscriptionSelectionWidget({ isOpen, onClose }: Props) {
                   </div>
                 ))}
               </div>
-              <button className="avify-cta-btn" style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, cursor: "pointer", fontSize: 15, fontWeight: 700, color: "white", whiteSpace: "nowrap" }}>
+              <button
+                className="avify-cta-btn"
+                onClick={() => { onSelectPlan?.("lite"); onClose(); }}
+                style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, cursor: "pointer", fontSize: 15, fontWeight: 700, color: "white", whiteSpace: "nowrap" }}
+              >
                 Выбрать Lite
               </button>
             </div>
@@ -128,7 +137,11 @@ export function SubscriptionSelectionWidget({ isOpen, onClose }: Props) {
                 </div>
               </div>
 
-              <button className="avify-cta-btn" style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, cursor: "pointer", fontSize: 15, fontWeight: 700, color: "white", whiteSpace: "nowrap" }}>
+              <button
+                className="avify-cta-btn"
+                onClick={() => { onSelectPlan?.("pro"); onClose(); }}
+                style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, cursor: "pointer", fontSize: 15, fontWeight: 700, color: "white", whiteSpace: "nowrap" }}
+              >
                 Активировать Pro
               </button>
             </div>
