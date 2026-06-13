@@ -127,10 +127,16 @@ alwaysApply: false
 
 ## 13. Использование референсного прототипа (Legacy website prototype)
 
-Обязанность строго ориентироваться на референсный прототип,
+Обязанность строго ориентироваться на эталонный прототип,
 расположенный в каталоге:
 
 aviengine/docs/legacy_website_prototype/AviEngine\Website/
+
+А так же референсы: 
+
+aviengine/docs/references/reference-style/
+aviengine/docs/references/reference-ui/
+
 
 ### Обязательные требования:
 - прототип является **эталонной реализацией**, определяющей структуру экранов, навигацию, логику и UX‑паттерны;
