@@ -49,3 +49,91 @@ body { margin: 0; overflow-x: hidden; }
 .text-balance { text-wrap: balance; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
+
+.premium-flow-bg {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,.95), transparent 18%),
+    radial-gradient(circle at 86% 10%, rgba(105,210,255,.55), transparent 26%),
+    radial-gradient(circle at 45% 55%, rgba(20,85,255,.42), transparent 32%),
+    linear-gradient(135deg, #f7fbff 0%, #dff3ff 28%, #6fb7ff 58%, #0c47df 100%);
+  background-size: 140% 140%;
+  animation: premiumFlow 16s ease-in-out infinite alternate;
+}
+
+.demo-flow-bg {
+  background:
+    radial-gradient(circle at 15% 12%, rgba(255,255,255,.7), transparent 18%),
+    radial-gradient(circle at 75% 15%, rgba(88,216,255,.35), transparent 28%),
+    radial-gradient(circle at 50% 90%, rgba(20,85,255,.45), transparent 34%),
+    linear-gradient(145deg, #06122f, #082b82 48%, #72dfff);
+  background-size: 150% 150%;
+  animation: premiumFlow 18s ease-in-out infinite alternate;
+}
+
+.avito-gradient-button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.6) !important;
+  background: linear-gradient(110deg, #ff4fd8 0%, #5b6dff 38%, #12a8ff 62%, #ffffff 100%) !important;
+  background-size: 220% 220% !important;
+  color: white !important;
+  box-shadow: 0 18px 54px rgba(40,100,255,.38), inset 0 1px 0 rgba(255,255,255,.8) !important;
+  animation: gradientShift 5s ease-in-out infinite;
+}
+
+.avito-gradient-button::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,.24), rgba(255,255,255,0));
+  z-index: -1;
+}
+
+.avito-gradient-button::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  bottom: -60%;
+  width: 42%;
+  left: -55%;
+  transform: rotate(18deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), transparent);
+  animation: buttonSheen 3.6s ease-in-out infinite;
+}
+
+.liquid-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-card::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(from 180deg, transparent, rgba(255,255,255,.18), rgba(88,216,255,.22), transparent 55%);
+  animation: rotateGlow 10s linear infinite;
+  opacity: .75;
+}
+
+.liquid-card > * { position: relative; z-index: 1; }
+
+@keyframes premiumFlow {
+  0% { background-position: 0% 30%; filter: saturate(1); }
+  50% { background-position: 80% 40%; filter: saturate(1.18); }
+  100% { background-position: 20% 100%; filter: saturate(1.05); }
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; transform: translateY(0); }
+  50% { background-position: 100% 50%; transform: translateY(-1px); }
+}
+
+@keyframes buttonSheen {
+  0%, 45% { left: -55%; opacity: 0; }
+  55% { opacity: 1; }
+  100% { left: 115%; opacity: 0; }
+}
+
+@keyframes rotateGlow { to { transform: rotate(360deg); } }
