@@ -1,47 +1,43 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangle, CheckSquare2, ChevronRight, FileText, Plus, RefreshCw, Search, Send, Settings2, Trash2, UserRound, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import aviLogo from "../../../docs/legacy_website_prototype/AviEngine Website/src/assets/83ad018e457e6e4bb595c06474fa13375d08f06e.png";
-
-type Tab = "manager" | "publication" | "updates";
-const accounts = ["Applexis", "MotoDrive", "HomeCraft", "TechMarket", "AutoPartsPro"];
-const cities = ["Москва", "Санкт‑Петербург", "Казань", "Краснодар", "Екатеринбург"];
-const tasks = [
-  { id: 1, title: "Публикация AirPods Pro", account: "Applexis", progress: 72, status: "running" },
-  { id: 2, title: "Загрузка запчастей Toyota", account: "MotoDrive, AutoPartsPro", progress: 27, status: "queue" },
-  { id: 3, title: "Обновление описаний", account: "HomeCraft", progress: 0, status: "error", error: "Нужно повторно подтвердить доступ к аккаунту. После входа система продолжит работу автоматически." }
-];
-const initialListings = Array.from({ length: 8 }).map((_, i) => ({ id: i + 1, avitoId: 8320100 + i, title: ["iPhone 15 Pro 256GB", "BMW X5 G05", "Диван угловой Moon", "AirPods Pro 2", "Toyota Camry фара", "MacBook Air M2", "Кресло офисное", "Шины Michelin"][i], price: [99000, 6200000, 45000, 17900, 12500, 87000, 12900, 36000][i], mode: i % 3 === 0 ? "Авто" : "Вручную", selected: i < 3, updated: i % 2 ? "48 мин назад" : "2 ч назад" }));
+import { DashboardHeader } from "./components/DashboardHeader";
+import { TabSwitcher } from "./components/TabSwitcher";
+import { useDashboardState } from "./state/useDashboardState";
+import { ManagerTab } from "./tabs/ManagerTab";
+import { PublicationTab } from "./tabs/PublicationTab";
+import { UpdatesTab } from "./tabs/UpdatesTab";
 
 export default function DashboardPage() {
-  const [tab, setTab] = useState<Tab>("manager");
-  return <main className="demo-flow-bg min-h-screen text-white"><div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,.20),transparent_30%),linear-gradient(180deg,rgba(4,18,54,.16),rgba(4,18,54,.62))]" /><div className="dot-grid pointer-events-none fixed inset-0 opacity-25" /><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: .6 }} className="container relative z-10 py-6"><Header /><TabSwitcher tab={tab} setTab={setTab} /><section className="mx-auto mt-5 max-w-5xl"><AnimatePresence mode="wait">{tab === "manager" && <motion.div key="manager" initial={{ opacity: 0, y: 22, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(8px)" }} transition={{ duration: .42 }}><ManagerTab /></motion.div>}{tab === "publication" && <motion.div key="publication" initial={{ opacity: 0, y: 22, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(8px)" }} transition={{ duration: .42 }}><PublicationTab /></motion.div>}{tab === "updates" && <motion.div key="updates" initial={{ opacity: 0, y: 22, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(8px)" }} transition={{ duration: .42 }}><UpdatesTab /></motion.div>}</AnimatePresence></section></motion.div></main>;
+  const dashboard = useDashboardState();
+
+  return (
+    <main className="demo-flow-bg min-h-screen text-white">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,.20),transparent_30%),linear-gradient(180deg,rgba(4,18,54,.16),rgba(4,18,54,.62))]" />
+      <div className="dot-grid pointer-events-none fixed inset-0 opacity-25" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: .6 }} className="container relative z-10 py-6">
+        <DashboardHeader accounts={dashboard.accounts} accountsOpen={dashboard.accountsOpen} setAccountsOpen={dashboard.setAccountsOpen} subscription={dashboard.subscription} />
+        <TabSwitcher tab={dashboard.tab} setTab={dashboard.setTab} />
+        <section className="mx-auto mt-5 max-w-5xl">
+          <AnimatePresence mode="wait">
+            {dashboard.tab === "manager" && (
+              <motion.div key="manager" initial={{ opacity: 0, y: 22, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(8px)" }} transition={{ duration: .42 }}>
+                <ManagerTab tasks={dashboard.tasks} errors={dashboard.errors} runAgent={dashboard.runAgent} removeTask={dashboard.removeTask} />
+              </motion.div>
+            )}
+            {dashboard.tab === "publication" && (
+              <motion.div key="publication" initial={{ opacity: 0, y: 22, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(8px)" }} transition={{ duration: .42 }}>
+                <PublicationTab templates={dashboard.templates} activateTemplate={dashboard.activateTemplate} />
+              </motion.div>
+            )}
+            {dashboard.tab === "updates" && (
+              <motion.div key="updates" initial={{ opacity: 0, y: 22, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(8px)" }} transition={{ duration: .42 }}>
+                <UpdatesTab listings={dashboard.listings} selectedListings={dashboard.selectedListings} toggleListing={dashboard.toggleListing} toggleAllListings={dashboard.toggleAllListings} updateSelectedListings={dashboard.updateSelectedListings} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </section>
+      </motion.div>
+    </main>
+  );
 }
-
-function Header() { return <header className="mb-5 flex items-center justify-between rounded-[1.6rem] border border-white/18 bg-white/12 px-4 py-3 shadow-glass backdrop-blur-2xl"><Link href="/" className="flex items-center gap-3"><Image src={aviLogo} alt="AviEngine" width={42} height={42} className="rounded-2xl shadow-[0_18px_45px_rgba(20,85,255,.35)]" /><div><div className="font-black tracking-tight">AviEngine</div><div className="text-xs text-white/60">Рабочая панель</div></div></Link><div className="flex items-center gap-3"><span className="hidden rounded-full border border-success/25 bg-success/12 px-3 py-1 text-xs font-bold text-success shadow-glass sm:inline-flex">Готов к работе</span><Button variant="secondary" size="sm" className="border-white/25 bg-white/14 text-white hover:bg-white/20"><UserRound className="h-4 w-4" /> Аккаунты</Button></div></header>; }
-function TabSwitcher({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) { const tabs = [{ id: "manager", label: "Менеджер задач", icon: CheckSquare2 }, { id: "publication", label: "Публикация", icon: Send }, { id: "updates", label: "Обновление", icon: RefreshCw }] as const; return <div className="mt-5 flex justify-center gap-2 rounded-[1.4rem] border border-white/14 bg-white/[.08] p-2 shadow-glass backdrop-blur-2xl">{tabs.map(({ id, label, icon: Icon }) => <motion.button whileHover={{ y: -2 }} whileTap={{ scale: .98 }} key={id} onClick={() => setTab(id)} className={`relative flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-bold transition ${tab === id ? "border-white/45 bg-white/24 text-white shadow-glass" : "border-white/10 bg-white/[.04] text-white/58 hover:bg-white/[.08] hover:text-white"}`}>{tab === id && <motion.span layoutId="tab-glow" className="absolute inset-0 rounded-full bg-white/10" />}<Icon className="relative h-4 w-4" /><span className="relative">{label}</span>{tab === id && <span className="relative h-1.5 w-1.5 rounded-full bg-cyan" />}</motion.button>)}</div>; }
-
-function ManagerTab() { const errors = tasks.filter(t => t.status === "error"); return <div className="space-y-5"><Card className="light-panel overflow-hidden text-ink-900"><PanelHeader icon={CheckSquare2} title="Менеджер задач" action={<Button size="sm"><Zap className="h-4 w-4" /> Запустить агента</Button>} /><div className="grid grid-cols-3 border-y border-primary-900/10 text-sm"><Kpi l="Выполнено" v="54%" /><Kpi l="Активных задач" v="3" /><Kpi l="Ошибки" v={String(errors.length)} danger /></div><div className="p-4"><div className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-primary-700"><span className="h-2 w-2 rounded-full bg-primary-600" /> В процессе</div>{tasks.filter(t => t.status !== "error").map(t => <TaskRow key={t.id} t={t} />)}<SkeletonPreview /></div>{errors.length > 0 && <ErrorState errors={errors} />}</Card></div>; }
-function PanelHeader({ icon: Icon, title, action }: any) { return <div className="flex items-center justify-between gap-4 p-5"><div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-2xl bg-primary-600/10 text-primary-700"><Icon className="h-5 w-5" /></div><h2 className="text-lg font-black">{title}</h2></div>{action}</div>; }
-function Kpi({ l, v, danger }: { l: string; v: string; danger?: boolean }) { return <div className="p-4"><div className="text-xs text-ink-500">{l}</div><div className={`mt-1 text-xl font-black ${danger ? "text-danger" : "text-primary-700"}`}>{v}</div></div>; }
-function TaskRow({ t }: any) { return <motion.div whileHover={{ y: -3, scale: 1.004 }} className="mb-3 rounded-2xl border border-primary-900/10 bg-white/74 p-4 shadow-[0_10px_35px_rgba(20,85,255,.08)] transition"><div className="mb-3 flex items-center justify-between"><div><b>{t.title}</b><div className="mt-1 text-xs text-ink-500">{t.account}</div></div><Badge variant={t.status === "queue" ? "warning" : "blue"}>{t.status === "queue" ? "Очередь" : "Работает"}</Badge></div><div className="h-2 overflow-hidden rounded-full bg-primary-100"><motion.div initial={{ width: 0 }} animate={{ width: `${t.progress}%` }} transition={{ duration: 1, ease: "easeOut" }} className="h-full rounded-full bg-gradient-to-r from-primary-600 to-cyan" /></div></motion.div>; }
-function SkeletonPreview() { return <div className="rounded-2xl border border-primary-900/10 bg-white/48 p-4"><div className="mb-3 flex items-center justify-between"><div className="skeleton-line h-3 w-44" /><div className="skeleton-line h-6 w-20" /></div><div className="skeleton-line h-2 w-full" /><p className="mt-3 text-xs text-ink-400">Следующая задача готовится к запуску</p></div>; }
-function ErrorState({ errors }: { errors: any[] }) { return <div className="border-t border-danger/15 bg-danger/[.045] p-4"><div className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-danger"><AlertTriangle className="h-4 w-4" /> Требует внимания <Badge variant="danger">{errors.length}</Badge></div>{errors.map(t => <motion.div key={t.id} whileHover={{ y: -2 }} className="rounded-2xl border border-danger/15 bg-white/74 p-4 shadow-[0_14px_38px_rgba(239,68,68,.08)]"><div className="flex items-start justify-between gap-4"><div><b>{t.title}</b><p className="mt-1 text-sm text-danger">{t.error}</p><p className="mt-2 text-xs text-ink-500">Подтвердите доступ — и задача продолжит работу.</p></div><Button variant="destructive" size="icon"><Trash2 className="h-4 w-4" /></Button></div></motion.div>)}</div>; }
-
-function PublicationTab() { const templates = ["Авто — BMW X5", "Электроника — iPhone 15 Pro", "Мебель — Диван угловой"]; return <div className="space-y-5"><Card className="light-panel text-ink-900"><PanelHeader icon={FileText} title="Шаблоны публикаций" action={<Button size="sm"><Plus className="h-4 w-4" /> Создать</Button>} /><div className="grid gap-4 p-5 pt-0 md:grid-cols-2">{templates.map((name, i) => <TemplateCard key={name} name={name} active={i === 0} />)}<EmptyState /></div></Card></div>; }
-function TemplateCard({ name, active }: { name: string; active?: boolean }) { return <div className="rounded-3xl border border-primary-900/10 bg-white/72 p-5"><div className="mb-4 flex items-center justify-between"><b>{name}</b>{active ? <Badge variant="success">Активен</Badge> : <Button size="sm">Активировать</Button>}</div><Field label="Аккаунты" value={accounts.slice(0, 2).join(", ")} /><Field label="Города" value={cities.slice(0, 3).join(", ")} /><div className="mt-4 rounded-2xl bg-primary-50 p-4"><div className="mb-3 flex items-center justify-between"><span className="font-bold">Варианты объявлений</span><Badge variant="blue">АВТО</Badge></div><button className="flex w-full items-center justify-between rounded-xl border border-primary-200 bg-white px-4 py-3 text-left text-sm font-semibold">Базовый <ChevronRight className="h-4 w-4" /></button><Button variant="ghost" size="sm" className="mt-2 text-primary-700"><Plus className="h-4 w-4" /> Создать объявление</Button></div></div>; }
-function Field({ label, value }: { label: string; value: string }) { return <div className="mb-3"><div className="mb-1 text-[10px] font-black uppercase tracking-wider text-ink-400">{label}</div><div className="rounded-xl border border-primary-900/10 bg-primary-50 px-3 py-2 text-sm text-ink-700">{value}</div></div>; }
-function EmptyState() { return <motion.div whileHover={{ y: -4 }} className="grid min-h-[240px] place-items-center rounded-3xl border border-dashed border-primary-300/70 bg-primary-50/70 p-6 text-center"><div><div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-white text-primary-700 shadow-sm"><Plus className="h-5 w-5" /></div><b>Создайте новый шаблон</b><p className="mt-2 text-sm leading-6 text-ink-500">Добавьте аккаунты, города и варианты объявлений — всё будет готово к запуску.</p></div></motion.div>; }
-
-function UpdatesTab() { const [listings, setListings] = useState(initialListings); const selected = useMemo(() => listings.filter(l => l.selected).length, [listings]); const toggleAll = () => setListings(p => p.map(l => ({ ...l, selected: selected !== listings.length }))); return <Card className="light-panel overflow-hidden rounded-[1.8rem] text-ink-900 shadow-[0_28px_90px_rgba(4,18,54,.18)]"><PanelHeader icon={RefreshCw} title="Обновление" action={<div className="flex gap-2"><Button variant="secondary" size="sm" className="rounded-full bg-primary-50 text-primary-700 hover:bg-primary-100"><Settings2 className="h-4 w-4" /> Режимы</Button><Button size="sm" className="rounded-full">Обновить сейчас</Button></div>} /><div className="border-y border-primary-900/10 bg-white/46 p-5"><div className="grid gap-4 md:grid-cols-[1fr_220px_220px]"><div className="relative"><Search className="absolute left-3 top-3 h-4 w-4 text-ink-400" /><Input className="h-10 rounded-2xl border-primary-900/10 bg-white/90 pl-9 text-ink-900 shadow-sm placeholder:text-ink-400" placeholder="Поиск по объявлениям" /></div><ModeCard title="Авто режим" text="Система выбирает время" active /><ModeCard title="Ручной режим" text="Кнопка обновления" /></div><button onClick={toggleAll} className="mt-4 rounded-full px-1 text-sm font-bold text-primary-700 transition hover:text-primary-900">{selected === listings.length ? "Снять выбор" : "Выбрать все"} · выбрано {selected}</button></div><div className="grid gap-4 p-5 md:grid-cols-2 lg:grid-cols-4">{listings.map(item => <ListingCard key={item.id} item={item} onToggle={() => setListings(p => p.map(l => l.id === item.id ? { ...l, selected: !l.selected } : l))} />)}</div></Card>; }
-function ModeCard({ title, text, active }: { title: string; text: string; active?: boolean }) { return <div className={`rounded-2xl border p-4 shadow-sm transition ${active ? "border-primary-300 bg-primary-50" : "border-primary-900/10 bg-white/86"}`}><div className="font-black">{title}</div><div className="mt-1 text-xs text-ink-500">{text}</div></div>; }
-function ListingCard({ item, onToggle }: any) { return <motion.div whileHover={{ y: -5, scale: 1.01 }} className={`rounded-3xl border p-3 shadow-[0_18px_48px_rgba(20,85,255,.10)] transition ${item.selected ? "border-primary-300 bg-primary-50" : "border-primary-900/10 bg-white/92"}`}><div className="mb-3 flex items-center justify-between"><Checkbox checked={item.selected} onCheckedChange={onToggle} /><Badge variant={item.mode === "Авто" ? "blue" : "default"}>{item.mode}</Badge></div><div className="mb-3 h-28 rounded-2xl bg-gradient-to-br from-primary-100 via-white to-cyan/20" /><b className="line-clamp-2 text-sm">{item.title}</b><div className="mt-2 text-lg font-black">{item.price.toLocaleString("ru-RU")} ₽</div><div className="mt-2 text-xs text-ink-500">№ {item.avitoId} · {item.updated}</div></motion.div>; }
