@@ -103,16 +103,16 @@ function HeroScreen({ onEnter }: { onEnter: () => void }) {
       id="screen-1"
       onViewportEnter={onEnter}
       viewport={{ amount: 0.65 }}
-      className="relative z-50 flex min-h-screen snap-start snap-always items-center justify-center px-5 py-24"
+      className="relative z-50 flex min-h-screen snap-start snap-always items-center justify-center px-5 pb-32 pt-24"
     >
       <motion.div
         initial={{ opacity: 0, y: 34, filter: "blur(10px)" }}
         whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         viewport={{ once: false, amount: 0.7 }}
         transition={{ duration: 0.9, ease: premiumEase }}
-        className="mx-auto max-w-6xl text-center"
+        className="mx-auto max-w-5xl -translate-y-8 text-center md:-translate-y-12"
       >
-        <h1 className="text-balance text-[clamp(3rem,8vw,7.8rem)] font-black leading-[.92] tracking-[-.065em] drop-shadow-[0_26px_82px_rgba(4,18,54,.48)]">
+        <h1 className="text-balance text-[clamp(2.35rem,5.8vw,5.8rem)] font-black leading-[1.04] tracking-[-.052em] drop-shadow-[0_26px_82px_rgba(4,18,54,.48)]">
           Выкладывайте объявления на Авито без рутины, AI автопилот теперь работает за отдел выкладки
         </h1>
       </motion.div>
@@ -169,6 +169,11 @@ function DemoScreen({ avitoUrl, onEnter }: { avitoUrl: string; onEnter: () => vo
         >
           <h2 className="text-balance text-4xl font-black tracking-[-.045em] md:text-6xl">Всем этим вы можете управлять в одной удобной панели</h2>
           <p className="mt-6 text-lg leading-8 text-white/70">Аккаунты, шаблоны, запуск агента и обновление объявлений собраны в одной комфортной для управления панели.</p>
+          <div className="mt-8 flex justify-center lg:justify-start">
+            <Button asChild size="lg" className="group relative isolate h-[62px] overflow-hidden rounded-full border border-white/35 bg-white/15 px-10 text-base font-bold text-white shadow-[0_24px_70px_rgba(17,70,220,.32),inset_0_1px_0_rgba(255,255,255,.65)] backdrop-blur-2xl transition-all duration-500 hover:-translate-y-1 hover:bg-white/22 hover:shadow-[0_32px_90px_rgba(17,70,220,.45),inset_0_1px_0_rgba(255,255,255,.86)] before:absolute before:inset-[1px] before:-z-10 before:rounded-full before:bg-[linear-gradient(135deg,rgba(255,255,255,.30),rgba(93,220,255,.18)_42%,rgba(20,85,255,.34))] after:absolute after:inset-y-[-60%] after:left-[-45%] after:-z-10 after:w-1/3 after:rotate-12 after:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent)] after:opacity-0 after:transition-all after:duration-700 hover:after:left-[115%] hover:after:opacity-100">
+              <a href={avitoUrl}><UserRound className="h-5 w-5" /> Войти через Авито</a>
+            </Button>
+          </div>
         </motion.div>
 
         <motion.div
@@ -178,13 +183,7 @@ function DemoScreen({ avitoUrl, onEnter }: { avitoUrl: string; onEnter: () => vo
           transition={{ duration: .95, ease: premiumEase }}
           className="relative"
         >
-          <ShaderOrb className="absolute -top-28 left-1/2 h-[420px] w-[420px] -translate-x-1/2 opacity-42" />
           <DemoInterfacePreview />
-          <div className="mt-8 flex justify-center">
-            <Button asChild size="lg" className="avito-gradient-button h-[62px] px-10 text-base">
-              <a href={avitoUrl}><UserRound className="h-5 w-5" /> Войти через Авито</a>
-            </Button>
-          </div>
         </motion.div>
       </div>
     </motion.section>
