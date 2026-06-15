@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -53,16 +53,7 @@ const benefits = [
 
 export default function LandingPage() {
   const [activeScreen, setActiveScreen] = useState(1);
-  const avitoUrl = useMemo(() => {
-    const params = new URLSearchParams({
-      response_type: "code",
-      pro_users_flow: "true",
-      client_id: "<CLIENT_ID>",
-      scope: "autoload:reports,items:info,user:read",
-      state: "demo-state",
-    });
-    return `https://avito.ru/oauth?${params.toString()}`;
-  }, []);
+  const interfaceUrl = "/dashboard";
 
   return (
     <main className="premium-flow-bg relative h-screen snap-y snap-mandatory overflow-y-auto overflow-x-hidden scroll-smooth text-white">
@@ -92,7 +83,7 @@ export default function LandingPage() {
 
       <HeroScreen onEnter={() => setActiveScreen(1)} />
       <BenefitsScreen onEnter={() => setActiveScreen(2)} />
-      <DemoScreen avitoUrl={avitoUrl} onEnter={() => setActiveScreen(3)} />
+      <DemoScreen interfaceUrl={interfaceUrl} onEnter={() => setActiveScreen(3)} />
     </main>
   );
 }
@@ -151,7 +142,7 @@ function BenefitsScreen({ onEnter }: { onEnter: () => void }) {
   );
 }
 
-function DemoScreen({ avitoUrl, onEnter }: { avitoUrl: string; onEnter: () => void }) {
+function DemoScreen({ interfaceUrl, onEnter }: { interfaceUrl: string; onEnter: () => void }) {
   return (
     <motion.section
       id="screen-3"
@@ -171,7 +162,7 @@ function DemoScreen({ avitoUrl, onEnter }: { avitoUrl: string; onEnter: () => vo
           <p className="mt-6 text-lg leading-8 text-white/70">Аккаунты, шаблоны, запуск агента и обновление объявлений собраны в одной комфортной для управления панели.</p>
           <div className="mt-8 flex justify-center lg:justify-start">
             <Button asChild size="lg" className="group relative isolate h-[62px] overflow-hidden rounded-full border border-white/55 !bg-[linear-gradient(112deg,rgba(255,96,214,.84)_0%,rgba(74,112,255,.78)_48%,rgba(255,255,255,.92)_100%)] bg-[length:190%_190%] bg-[position:0%_50%] px-10 text-base font-bold text-white shadow-[0_24px_76px_rgba(255,96,214,.24),0_18px_68px_rgba(74,112,255,.26),inset_0_1px_0_rgba(255,255,255,.72)] backdrop-blur-2xl transition-all duration-500 hover:-translate-y-1 hover:bg-[position:100%_50%] hover:shadow-[0_34px_98px_rgba(255,96,214,.34),0_24px_82px_rgba(74,112,255,.34),inset_0_1px_0_rgba(255,255,255,.9)] before:absolute before:inset-[1px] before:-z-10 before:rounded-full before:bg-[linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.08)_44%,rgba(255,255,255,0)_100%)] after:absolute after:inset-y-[-65%] after:left-[-45%] after:-z-10 after:w-1/3 after:rotate-12 after:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,.78),transparent)] after:opacity-0 after:transition-all after:duration-700 hover:after:left-[115%] hover:after:opacity-100">
-              <a href={avitoUrl}><UserRound className="h-5 w-5" /> Войти через Авито</a>
+              <Link href={interfaceUrl}><UserRound className="h-5 w-5" /> Войти через Авито</Link>
             </Button>
           </div>
         </motion.div>
