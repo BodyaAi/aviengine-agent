@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Account, Listing, PublicationTemplate, SubscriptionStatus, Tab, Task } from "../models/dashboard";
+import type { Account, Listing, PublicationTemplate, SubscriptionPlan, SubscriptionStatus, Tab, Task } from "../models/dashboard";
 
 const initialAccounts: Account[] = [
   { id: 1, name: "Applexis", status: "active", slots: 4 },
@@ -36,11 +36,21 @@ const initialListings: Listing[] = Array.from({ length: 8 }).map((_, i) => ({
 const subscription: SubscriptionStatus = {
   label: "Подписка",
   value: "Активна",
+  state: "active",
+  until: "до 24.08.2026",
 };
+
+const subscriptionPlans: SubscriptionPlan[] = [
+  { id: "start", name: "Start", price: "1 990 ₽", slots: "3 слота" },
+  { id: "pro", name: "Pro", price: "4 990 ₽", slots: "10 слотов" },
+  { id: "business", name: "Business", price: "9 990 ₽", slots: "30 слотов" },
+];
 
 export function useDashboardState() {
   const [tab, setTab] = useState<Tab>("manager");
   const [accountsOpen, setAccountsOpen] = useState(false);
+  const [subscriptionOpen, setSubscriptionOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(subscriptionPlans[1].id);
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [templates, setTemplates] = useState<PublicationTemplate[]>(initialTemplates);
   const [listings, setListings] = useState<Listing[]>(initialListings);
@@ -49,7 +59,15 @@ export function useDashboardState() {
   const selectedListings = useMemo(() => listings.filter(listing => listing.selected).length, [listings]);
 
   const runAgent = () => {
-    setTasks(current => current.map(task => task.status === "queue" ? { ...task, status: "running", progress: Math.max(task.progress, 34) } : task));
+    setTasks(current => current.map(task => task.status === "queue" || task.status === "paused" ? { ...task, status: "running", progress: Math.max(task.progress, 34) } : task));
+  };
+
+  const stopTask = (id: number) => {
+    setTasks(current => current.map(task => task.id === id && task.status === "running" ? { ...task, status: "paused" } : task));
+  };
+
+  const resumeTask = (id: number) => {
+    setTasks(current => current.map(task => task.id === id && task.status === "paused" ? { ...task, status: "running" } : task));
   };
 
   const removeTask = (id: number) => {
@@ -79,9 +97,16 @@ export function useDashboardState() {
     accountsOpen,
     setAccountsOpen,
     subscription,
+    subscriptionPlans,
+    subscriptionOpen,
+    setSubscriptionOpen,
+    selectedPlan,
+    setSelectedPlan,
     tasks,
     errors,
     runAgent,
+    stopTask,
+    resumeTask,
     removeTask,
     templates,
     activateTemplate,
