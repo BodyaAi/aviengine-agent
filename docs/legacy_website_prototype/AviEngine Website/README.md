@@ -1,11 +1,28 @@
+# AviEngine Website
 
-  # AviEngine Website
+Legacy‑версия интерфейса AviEngine на **React + Vite**.  
+Используется как **источник истины** при переносе логики в новый Next.js‑frontend.
 
-  This is a code bundle for AviEngine Website. The original project is available at https://www.figma.com/design/TIRe41Ud0Busv1COCmoPkx/AviEngine-Website.
+## Назначение
+- хранит оригинальную бизнес‑логику продукта  
+- служит эталоном поведения интерфейса  
+- определяет корректные состояния подписки, задач и шаблонов  
+- используется AI‑моделями как контекст, чтобы исключить фантазии  
 
-  ## Running the code
+## Связь с `rules.md`
+Файл **`rules.md`** — официальный документ правил разработки AviEngine.  
+Именно там указан этот путь как истинный. Поэтому при миграции новый frontend обязан повторять его поведение.
 
-  Run `npm i` to install the dependencies.
+## Ядро логики
+- `App.tsx` — навигация, subscription locking  
+- `AppContext.tsx` — глобальное состояние (theme + 6 состояний подписки)  
+- `MainTab.tsx` — жизненный цикл агента  
+- `WorkTab.tsx` — CRUD шаблонов  
+- `SubscriptionStatusSwitcher.tsx` — UI логики подписки  
+- `SubscriptionSelectionWidget.tsx` — модалка тарифов
 
-  Run `npm run dev` to start the development server.
-  
+## Известные проблемы
+- `WorkTab.tsx` импортирует удалённый `Toast.tsx` (компонент всплывающих уведомлений).
+  Файл утерян при чистке мусора. **Toast не влияет на бизнес-логику** — только UX-feedback после действий пользователя («Шаблон создан ✓», «Шаблон удалён» и т.д.).
+  В новом frontend заменить на любую библиотеку уведомлений (sonner, react-hot-toast, radix toast).
+  Игнорировать нельзя — уведомления должны быть реализованы.
