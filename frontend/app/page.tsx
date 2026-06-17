@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ShaderOrb } from "@/components/effects/shader-orb";
-import aviLogo from "../../docs/legacy_website_prototype/AviEngine Website/src/assets/83ad018e457e6e4bb595c06474fa13375d08f06e.png";
+import aviLogo from "@/public/logo_aviengine.png";
 
 const premiumEase = [0.22, 1, 0.36, 1] as const;
 

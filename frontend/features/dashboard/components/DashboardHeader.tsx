@@ -5,7 +5,7 @@ import { X, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Account, SubscriptionPlan, SubscriptionStatus } from "../models/dashboard";
 import { SubscriptionWidget } from "./SubscriptionWidget";
-import aviLogo from "../../../../docs/legacy_website_prototype/AviEngine Website/src/assets/83ad018e457e6e4bb595c06474fa13375d08f06e.png";
+import aviLogo from "@/public/logo_aviengine.png";
 
 const accountStatusLabels = {
   active: "Активен",

@@ -1,12 +1,12 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { DashboardHeader } from "./components/DashboardHeader";
-import { TabSwitcher } from "./components/TabSwitcher";
-import { useDashboardState } from "./state/useDashboardState";
-import { ManagerTab } from "./tabs/ManagerTab";
-import { PublicationTab } from "./tabs/PublicationTab";
-import { UpdatesTab } from "./tabs/UpdatesTab";
+import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
+import { TabSwitcher } from "@/features/dashboard/components/TabSwitcher";
+import { useDashboardState } from "@/features/dashboard/state/useDashboardState";
+import { ManagerTab } from "@/features/dashboard/tabs/ManagerTab";
+import { PublicationTab } from "@/features/dashboard/tabs/PublicationTab";
+import { UpdatesTab } from "@/features/dashboard/tabs/UpdatesTab";
 
 export default function DashboardPage() {
   const dashboard = useDashboardState();
