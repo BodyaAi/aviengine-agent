@@ -3,4 +3,4 @@ const nextConfig = {
   // твои настройки
 }
 
-module.exports = nextConfig
+export default nextConfig
