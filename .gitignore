@@ -1,0 +1,5 @@
+future.md
+*.log
+.next/
+node_modules/
+dist
