@@ -20,7 +20,6 @@ export function SubscriptionWidget({
   open,
   setOpen,
   cycleSubscription,
-  startTrial,
   onSelectPlan,
 }: {
   subscription: SubscriptionStatus;
@@ -31,18 +30,14 @@ export function SubscriptionWidget({
   open: boolean;
   setOpen: (open: boolean) => void;
   cycleSubscription: () => void;
-  startTrial: () => void;
   onSelectPlan: (plan: "lite" | "pro") => void;
 }) {
   return (
-    <div data-subscription-zone="true" className="min-w-[230px]" onClick={cycleSubscription}>
-      {subscriptionState === "free" && (
-        <Button className="w-full rounded-full blue-gradient-button" onClick={event => { event.stopPropagation(); startTrial(); }}>Начать пробный период</Button>
-      )}
+    <div data-subscription-zone="true" className="min-w-[520px]" onClick={cycleSubscription}>
       {subscriptionState === "trial_limits" && (
         <div onClick={event => event.stopPropagation()} className="rounded-2xl border border-white/20 bg-white/12 p-3 text-white backdrop-blur-xl">
           <div className="mb-3 text-sm font-black">Пробный доступ по лимитам</div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {limits.map(({ name, value, icon: Icon }) => <div key={name} className="rounded-xl bg-white/10 p-2"><div className="flex items-center justify-between gap-1 text-[11px] font-bold"><Icon className="h-3.5 w-3.5" />{value}</div><div className="mt-1 truncate text-[11px] text-white/70">{name}</div><div className="mt-2 h-1 rounded-full bg-white/20" /></div>)}
           </div>
         </div>
@@ -71,7 +66,7 @@ function SubscriptionSelectionWidget({ open, setOpen, plans, selectedPlan, setSe
       <div className="max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] border border-white/18 bg-white p-5 text-ink-900 shadow-[0_30px_100px_rgba(4,18,54,.34)]" onMouseDown={event => event.stopPropagation()}>
         <div className="mb-5 flex items-start justify-between gap-4 text-center sm:text-left">
           <div><div className="text-2xl font-black text-primary-700">AviEngine</div><h2 className="mt-1 text-2xl font-black tracking-tight">Переходи на AI‑автопилот.</h2><p className="mt-2 text-sm text-ink-500">Lite проще для старта, Pro строже для масштабирования.</p></div>
-          <Button variant="ghost" size="icon" onClick={() => setOpen(false)}><X className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="icon" className="text-ink-700 hover:bg-primary-50" onClick={() => setOpen(false)}><X className="h-4 w-4" /></Button>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {plans.map(plan => {

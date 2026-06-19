@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Account, Listing, ListingMode, PublicationTemplate, PublicationVariant, SubscriptionPlan, SubscriptionState, SubscriptionStatus, Tab, Task, TemplateMode } from "../models/dashboard";
+import type { Account, Listing, MigrationItem, PublicationTemplate, PublicationVariant, SubscriptionPlan, SubscriptionState, SubscriptionStatus, Tab, Task, TemplateMode } from "../models/dashboard";
 
-const cities = ["Москва", "Санкт‑Петербург", "Новосибирск", "Екатеринбург", "Казань", "Нижний Новгород", "Краснодар", "Самара"];
+const cities = ["Москва", "Санкт‑Петербург", "Новосибирск", "Екатеринбург", "Казань", "Нижний Новгород", "Челябинск", "Самара", "Уфа", "Ростов-на-Дону", "Красноярск", "Воронеж", "Пермь", "Волгоград", "Краснодар", "Сочи", "Тюмень", "Иркутск", "Омск", "Владивосток"];
 
 const initialAccounts: Account[] = [
   { id: 1, name: "Applexis", email: "applexis@avito-seller.ru", avatar: "A", status: "connected" },
@@ -22,9 +22,17 @@ const initialTasks: Task[] = [
 ];
 
 const initialTemplates: PublicationTemplate[] = [
-  { id: 1, name: "Авто — BMW X5", active: false, accounts: ["Applexis"], cities: ["Москва", "Санкт‑Петербург"], mode: "auto", autoCount: 25, variants: [{ id: 1, name: "Базовый", count: 25 }] },
-  { id: 2, name: "Электроника — iPhone 15 Pro", active: false, accounts: ["Applexis", "MotoDrive"], cities: ["Москва"], mode: "manual", autoCount: 25, variants: [{ id: 1, name: "Новый, запечатан", count: 25 }, { id: 2, name: "Б/у, идеал", count: 15 }] },
-  { id: 3, name: "Мебель — Диван угловой", active: false, accounts: ["HomeCraft"], cities: [], mode: "auto", autoCount: 5, variants: [{ id: 1, name: "Базовый", count: 5 }] },
+  { id: 1, name: "Авто — BMW X5", active: false, accounts: ["Applexis"], cities: ["Москва", "Санкт‑Петербург"], mode: "auto", autoCount: 25, variants: [{ id: 1, name: "Объявление 1", count: 25 }], migrationEnabled: false },
+  { id: 2, name: "Электроника — iPhone 15 Pro", active: false, accounts: ["Applexis", "MotoDrive"], cities: ["Москва"], mode: "manual", autoCount: 25, variants: [{ id: 1, name: "Объявление 1", count: 25 }, { id: 2, name: "Объявление 2", count: 15 }], migrationEnabled: false },
+  { id: 3, name: "Мебель — Диван угловой", active: false, accounts: ["HomeCraft"], cities: [], mode: "auto", autoCount: 5, variants: [{ id: 1, name: "Объявление 1", count: 5 }], migrationEnabled: true },
+];
+
+const migrationItems: MigrationItem[] = [
+  { id: 1, title: "BMW X5 G05", fromAccount: "Applexis", toAccounts: ["MotoDrive", "TechMarket"] },
+  { id: 2, title: "iPhone 15 Pro 256GB", fromAccount: "TechMarket", toAccounts: ["Applexis", "FashionPoint"] },
+  { id: 3, title: "AirPods Pro 2", fromAccount: "Applexis", toAccounts: ["MotoDrive"] },
+  { id: 4, title: "Toyota Camry фара", fromAccount: "AutoPartsPro", toAccounts: ["MotoDrive", "HomeCraft"] },
+  { id: 5, title: "Диван угловой Moon", fromAccount: "HomeCraft", toAccounts: ["Applexis"] },
 ];
 
 const titles = ["iPhone 15 Pro 256GB", "BMW X5 G05", "Диван угловой Moon", "AirPods Pro 2", "Toyota Camry фара", "MacBook Air M2", "Кресло офисное", "Шины Michelin"];
@@ -63,7 +71,6 @@ const subscriptionPlans: SubscriptionPlan[] = [
 
 function subscriptionView(state: SubscriptionState): SubscriptionStatus {
   const map: Record<SubscriptionState, SubscriptionStatus> = {
-    free: { label: "Подписка", value: "Нет подписки", state },
     trial_limits: { label: "Пробный период", value: "По лимитам", state },
     trial_ended: { label: "Пробный период", value: "Закончился", state },
     lite: { label: "Lite", value: "Активна", state, until: "до 12.05.2026" },
@@ -73,13 +80,13 @@ function subscriptionView(state: SubscriptionState): SubscriptionStatus {
   return map[state];
 }
 
-const subscriptionCycle: SubscriptionState[] = ["free", "trial_limits", "trial_ended", "lite", "pro", "expired"];
+const subscriptionCycle: SubscriptionState[] = ["trial_limits", "trial_ended", "lite", "pro", "expired"];
 
 export function useDashboardState() {
   const [tab, setTab] = useState<Tab>("manager");
   const [accountsOpen, setAccountsOpen] = useState(false);
   const [subscriptionOpen, setSubscriptionOpen] = useState(false);
-  const [subscriptionState, setSubscriptionState] = useState<SubscriptionState>("free");
+  const [subscriptionState, setSubscriptionState] = useState<SubscriptionState>("trial_limits");
   const [selectedPlan, setSelectedPlan] = useState<"lite" | "pro">("pro");
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
@@ -87,7 +94,7 @@ export function useDashboardState() {
   const [listings, setListings] = useState<Listing[]>(initialListings);
 
   const subscription = subscriptionView(subscriptionState);
-  const isLocked = subscriptionState === "free" || subscriptionState === "trial_ended" || subscriptionState === "expired";
+  const isLocked = subscriptionState === "trial_ended" || subscriptionState === "expired";
   const errors = useMemo(() => tasks.filter(task => task.status === "error" || task.error), [tasks]);
   const selectedListings = useMemo(() => listings.filter(listing => listing.selected).length, [listings]);
 
@@ -103,8 +110,6 @@ export function useDashboardState() {
     setSubscriptionOpen(false);
   };
 
-  const startTrial = () => setSubscriptionState("trial_limits");
-
   const addAccount = () => {
     const id = Date.now();
     setAccounts(current => [{ id, name: `Новый аккаунт ${current.length + 1}`, email: `account${current.length + 1}@avito.ru`, avatar: "N", status: "connected" }, ...current]);
@@ -117,7 +122,7 @@ export function useDashboardState() {
   const removeTask = (id: number) => setTasks(current => current.filter(task => task.id !== id));
   const clearTasks = () => setTasks([]);
 
-  const createTemplate = () => setTemplates(current => [{ id: Date.now(), name: `Новый шаблон #${current.length + 1}`, active: false, accounts: [], cities: [], mode: "auto", autoCount: 10, variants: [] }, ...current]);
+  const createTemplate = () => setTemplates(current => [{ id: Date.now(), name: `Новый шаблон #${current.length + 1}`, active: false, accounts: [], cities: [], mode: "auto", autoCount: 10, variants: [], migrationEnabled: false }, ...current]);
   const deleteTemplate = (id: number) => setTemplates(current => current.filter(template => template.id !== id));
   const activateTemplate = (id: number) => {
     const template = templates.find(item => item.id === id);
@@ -128,15 +133,16 @@ export function useDashboardState() {
     setTab("manager");
   };
   const deactivateTemplate = (id: number) => setTemplates(current => current.map(template => template.id === id ? { ...template, active: false } : template));
+  const updateTemplateName = (id: number, name: string) => setTemplates(current => current.map(template => template.id === id ? { ...template, name: name.slice(0, 64) } : template));
   const updateTemplateAccounts = (id: number, value: string[]) => setTemplates(current => current.map(template => template.id === id ? { ...template, accounts: value } : template));
   const updateTemplateCities = (id: number, value: string[]) => setTemplates(current => current.map(template => template.id === id ? { ...template, cities: value } : template));
-  const updateTemplateMode = (id: number, mode: TemplateMode) => setTemplates(current => current.map(template => template.id === id ? { ...template, mode, variants: mode === "auto" ? [{ id: Date.now(), name: "Базовый", count: template.autoCount }] : template.variants } : template));
+  const updateTemplateMode = (id: number, mode: TemplateMode) => setTemplates(current => current.map(template => template.id === id ? { ...template, mode } : template));
   const updateTemplateAutoCount = (id: number, autoCount: number) => setTemplates(current => current.map(template => template.id === id ? { ...template, autoCount } : template));
-  const updateTemplateVariants = (id: number, variants: PublicationVariant[]) => setTemplates(current => current.map(template => template.id === id ? { ...template, variants } : template));
+  const updateTemplateVariants = (id: number, variants: PublicationVariant[]) => setTemplates(current => current.map(template => template.id === id ? { ...template, variants: variants.map((variant, index) => ({ ...variant, name: `Объявление ${index + 1}` })) } : template));
+  const toggleTemplateMigration = (id: number) => setTemplates(current => current.map(template => template.id === id ? { ...template, migrationEnabled: !template.migrationEnabled } : template));
 
   const toggleListing = (id: number) => setListings(current => current.map(listing => listing.id === id ? { ...listing, selected: !listing.selected } : listing));
   const toggleAllListings = () => setListings(current => current.map(listing => ({ ...listing, selected: selectedListings !== current.length })));
-  const setListingMode = (mode: ListingMode) => setListings(current => current.map(listing => listing.selected ? { ...listing, mode } : listing));
   const updateSelectedListings = () => {
     const chosen = listings.filter(listing => listing.selected);
     if (chosen.length === 0) return;
@@ -145,13 +151,21 @@ export function useDashboardState() {
     setTab("manager");
   };
 
+  const updateListingNow = (id: number) => {
+    const listing = listings.find(item => item.id === id);
+    if (!listing) return;
+    setTasks(current => [{ id: Date.now(), title: `Обновление: ${listing.title}`, account: "Выбранный аккаунт", progress: 0, count: 1, done: 0, status: "running" }, ...current]);
+    setListings(current => current.map(item => item.id === id ? { ...item, selected: true, status: "queued", updated: "в очереди", nextUpdate: "После выполнения задачи" } : item));
+    setTab("manager");
+  };
+
   return {
-    tab, setTab, cities,
+    tab, setTab, cities, migrationItems,
     accounts, accountsOpen, setAccountsOpen, addAccount, removeAccount,
-    subscription, subscriptionPlans, subscriptionState, isLocked, cycleSubscription, startTrial, selectPlan,
+    subscription, subscriptionPlans, subscriptionState, isLocked, cycleSubscription, selectPlan,
     subscriptionOpen, setSubscriptionOpen, selectedPlan, setSelectedPlan,
     tasks, errors, runAgent, stopTask, resumeTask, removeTask, clearTasks,
-    templates, createTemplate, deleteTemplate, activateTemplate, deactivateTemplate, updateTemplateAccounts, updateTemplateCities, updateTemplateMode, updateTemplateAutoCount, updateTemplateVariants,
-    listings, selectedListings, toggleListing, toggleAllListings, setListingMode, updateSelectedListings,
+    templates, createTemplate, deleteTemplate, activateTemplate, deactivateTemplate, updateTemplateName, updateTemplateAccounts, updateTemplateCities, updateTemplateMode, updateTemplateAutoCount, updateTemplateVariants, toggleTemplateMigration,
+    listings, selectedListings, toggleListing, toggleAllListings, updateSelectedListings, updateListingNow,
   };
 }
