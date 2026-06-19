@@ -1,54 +1,37 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ChevronRight, FileText, Plus } from "lucide-react";
+import { FileText, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import type { PublicationTemplate } from "../models/dashboard";
+import { Input } from "@/components/ui/input";
+import type { Account, PublicationTemplate, PublicationVariant, TemplateMode } from "../models/dashboard";
 import { PanelHeader } from "../components/PanelHeader";
 
-export function PublicationTab({ templates, activateTemplate }: { templates: PublicationTemplate[]; activateTemplate: (id: number) => void }) {
-  return (
-    <div className="space-y-5">
-      <Card className="light-panel text-ink-900">
-        <PanelHeader icon={FileText} title="Шаблоны публикаций" action={<Button size="sm"><Plus className="h-4 w-4" /> Создать</Button>} />
-        <div className="grid gap-4 p-5 pt-0 md:grid-cols-2">
-          {templates.map(template => <TemplateCard key={template.id} template={template} activateTemplate={activateTemplate} />)}
-          <EmptyState />
-        </div>
-      </Card>
+export function PublicationTab({ accounts, cities, templates, createTemplate, deleteTemplate, activateTemplate, deactivateTemplate, updateTemplateAccounts, updateTemplateCities, updateTemplateMode, updateTemplateAutoCount, updateTemplateVariants }: { accounts: Account[]; cities: string[]; templates: PublicationTemplate[]; createTemplate: () => void; deleteTemplate: (id: number) => void; activateTemplate: (id: number) => void; deactivateTemplate: (id: number) => void; updateTemplateAccounts: (id: number, value: string[]) => void; updateTemplateCities: (id: number, value: string[]) => void; updateTemplateMode: (id: number, mode: TemplateMode) => void; updateTemplateAutoCount: (id: number, value: number) => void; updateTemplateVariants: (id: number, variants: PublicationVariant[]) => void }) {
+  return <Card className="light-panel text-ink-900"><PanelHeader icon={FileText} title="Шаблоны" action={<Button size="sm" onClick={createTemplate}><Plus className="h-4 w-4" /> Создать</Button>} /><div className="grid gap-4 p-5 pt-0 md:grid-cols-2">{templates.map(template => <TemplateCard key={template.id} template={template} accountNames={accounts.map(account => account.name)} cities={cities} deleteTemplate={deleteTemplate} activateTemplate={activateTemplate} deactivateTemplate={deactivateTemplate} updateTemplateAccounts={updateTemplateAccounts} updateTemplateCities={updateTemplateCities} updateTemplateMode={updateTemplateMode} updateTemplateAutoCount={updateTemplateAutoCount} updateTemplateVariants={updateTemplateVariants} />)}{templates.length === 0 && <div className="col-span-full rounded-3xl border border-dashed border-primary-300 bg-primary-50 p-10 text-center text-ink-500">Шаблонов пока нет</div>}</div></Card>;
+}
+
+function TemplateCard({ template, accountNames, cities, deleteTemplate, activateTemplate, deactivateTemplate, updateTemplateAccounts, updateTemplateCities, updateTemplateMode, updateTemplateAutoCount, updateTemplateVariants }: { template: PublicationTemplate; accountNames: string[]; cities: string[]; deleteTemplate: (id: number) => void; activateTemplate: (id: number) => void; deactivateTemplate: (id: number) => void; updateTemplateAccounts: (id: number, value: string[]) => void; updateTemplateCities: (id: number, value: string[]) => void; updateTemplateMode: (id: number, mode: TemplateMode) => void; updateTemplateAutoCount: (id: number, value: number) => void; updateTemplateVariants: (id: number, variants: PublicationVariant[]) => void }) {
+  const toggleValue = (value: string, values: string[], onChange: (value: string[]) => void) => onChange(values.includes(value) ? values.filter(item => item !== value) : [...values, value]);
+  const addVariant = () => updateTemplateVariants(template.id, [...template.variants, { id: Date.now(), name: `Вариант ${template.variants.length + 1}`, count: 10 }]);
+  const updateVariant = (variant: PublicationVariant) => updateTemplateVariants(template.id, template.variants.map(item => item.id === variant.id ? variant : item));
+  const deleteVariant = (id: number) => updateTemplateVariants(template.id, template.variants.filter(item => item.id !== id));
+
+  return <div className={`rounded-3xl border bg-white/78 p-5 shadow-[0_16px_42px_rgba(20,85,255,.08)] ${template.active ? "border-success/40" : "border-primary-900/10"}`}>
+    <div className="mb-4 flex items-center justify-between gap-3"><b className="line-clamp-1">{template.name}</b><div className="flex items-center gap-2">{template.active && <Badge variant="success">Активен</Badge>}<Button size="icon" variant="ghost" className="h-8 w-8 text-danger hover:bg-danger/10" onClick={() => deleteTemplate(template.id)}><Trash2 className="h-4 w-4" /></Button></div></div>
+    <Selector label="Аккаунты" values={accountNames} selected={template.accounts} onToggle={value => toggleValue(value, template.accounts, next => updateTemplateAccounts(template.id, next))} />
+    <Selector label="Города (гео)" values={cities} selected={template.cities} onToggle={value => toggleValue(value, template.cities, next => updateTemplateCities(template.id, next))} />
+    <div className="mt-4 rounded-2xl border border-primary-900/10 bg-primary-50 p-4"><div className="mb-3 flex items-center justify-between gap-3"><span className="font-bold">Варианты объявлений</span><div className="rounded-full bg-white p-1">{(["auto", "manual"] as const).map(mode => <button key={mode} onClick={() => updateTemplateMode(template.id, mode)} className={`rounded-full px-3 py-1 text-xs font-black ${template.mode === mode ? "bg-primary-600 text-white" : "text-primary-700/50"}`}>{mode === "auto" ? "АВТО" : "ВРУЧНУЮ"}</button>)}</div></div>
+      <div className="space-y-2">{template.variants.map(variant => <div key={variant.id} className="flex items-center gap-2 rounded-xl border border-primary-200 bg-white px-3 py-2"><Input value={variant.name} onChange={event => updateVariant({ ...variant, name: event.target.value })} className="h-8 border-0 bg-transparent p-0 font-semibold text-ink-900" />{template.mode === "manual" && <Input type="number" min={1} max={500} value={variant.count} onChange={event => updateVariant({ ...variant, count: Number(event.target.value) || 1 })} className="h-8 w-20 text-center font-black text-primary-700" />}<Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => deleteVariant(variant.id)}><X className="h-4 w-4" /></Button></div>)}</div>
+      <Button variant="ghost" size="sm" className="mt-2 text-primary-700" onClick={addVariant}><Plus className="h-4 w-4" /> Создать объявление</Button>
+      {template.mode === "auto" && <div className="mt-3 flex items-center justify-between border-t border-primary-900/10 pt-3 text-sm"><span className="text-ink-500">Кол-во публикаций на аккаунт</span><Input type="number" min={1} max={500} value={template.autoCount} onChange={event => updateTemplateAutoCount(template.id, Number(event.target.value) || 1)} className="h-9 w-20 text-center font-black text-primary-700" /></div>}
     </div>
-  );
+    <Button className="mt-4 w-full rounded-2xl" variant={template.active ? "destructive" : "default"} onClick={() => template.active ? deactivateTemplate(template.id) : activateTemplate(template.id)}>{template.active ? "Деактивировать" : "Активировать"}</Button>
+    {(template.accounts.length === 0 || template.cities.length === 0) && !template.active && <div className="mt-2 text-center text-xs text-warning">Для активации выберите аккаунт и город</div>}
+  </div>;
 }
 
-function TemplateCard({ template, activateTemplate }: { template: PublicationTemplate; activateTemplate: (id: number) => void }) {
-  return (
-    <div className="rounded-3xl border border-primary-900/10 bg-white/72 p-5 shadow-[0_16px_42px_rgba(20,85,255,.08)]">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <b>{template.name}</b>
-        {template.active ? <Badge variant="success">Активен</Badge> : <Button size="sm" onClick={() => activateTemplate(template.id)}>Активировать</Button>}
-      </div>
-      <Field label="Аккаунты" value={template.accounts.join(", ")} />
-      <Field label="Города" value={template.cities.join(", ")} />
-      <div className="mt-4 rounded-2xl bg-primary-50 p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <span className="font-bold">Варианты объявлений</span>
-          <Badge variant="blue">АВТО</Badge>
-        </div>
-        <button className="flex w-full items-center justify-between rounded-xl border border-primary-200 bg-white px-4 py-3 text-left text-sm font-semibold">
-          Базовый <ChevronRight className="h-4 w-4" />
-        </button>
-        <Button variant="ghost" size="sm" className="mt-2 text-primary-700"><Plus className="h-4 w-4" /> Создать объявление</Button>
-      </div>
-    </div>
-  );
-}
-
-function Field({ label, value }: { label: string; value: string }) {
-  return <div className="mb-3"><div className="mb-1 text-[10px] font-black uppercase tracking-wider text-ink-400">{label}</div><div className="rounded-xl border border-primary-900/10 bg-primary-50 px-3 py-2 text-sm text-ink-700">{value}</div></div>;
-}
-
-function EmptyState() {
-  return <motion.div whileHover={{ y: -4 }} className="grid min-h-[240px] place-items-center rounded-3xl border border-dashed border-primary-300/70 bg-primary-50/70 p-6 text-center"><div><div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-white text-primary-700 shadow-sm"><Plus className="h-5 w-5" /></div><b>Создайте новый шаблон</b><p className="mt-2 text-sm leading-6 text-ink-500">Добавьте аккаунты, города и варианты объявлений — всё будет готово к запуску.</p></div></motion.div>;
+function Selector({ label, values, selected, onToggle }: { label: string; values: string[]; selected: string[]; onToggle: (value: string) => void }) {
+  return <div className="mb-3"><div className="mb-2 text-[10px] font-black uppercase tracking-wider text-ink-400">{label}</div><div className="flex flex-wrap gap-2">{values.map(value => <button key={value} onClick={() => onToggle(value)} className={`rounded-full border px-3 py-1.5 text-xs font-bold ${selected.includes(value) ? "border-primary-300 bg-primary-600 text-white" : "border-primary-900/10 bg-primary-50 text-primary-700"}`}>{value}</button>)}</div></div>;
 }

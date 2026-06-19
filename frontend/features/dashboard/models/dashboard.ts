@@ -1,28 +1,33 @@
 export type Tab = "manager" | "publication" | "updates";
 
-export type AccountStatus = "active" | "attention" | "ready";
-export type SubscriptionState = "active" | "inactive" | "trial";
+export type AccountStatus = "connected" | "error";
+export type SubscriptionState = "free" | "trial_limits" | "trial_ended" | "lite" | "pro" | "expired";
 export type TaskStatus = "running" | "paused" | "queue" | "error" | "done";
+export type TemplateMode = "auto" | "manual";
+export type ListingStatus = "idle" | "queued" | "updating" | "done" | "error";
+export type ListingMode = "auto" | "manual";
 
 export type Account = {
   id: number;
   name: string;
+  email: string;
   status: AccountStatus;
-  slots: number;
+  avatar: string;
 };
 
 export type SubscriptionPlan = {
-  id: string;
-  name: string;
+  id: "lite" | "pro";
+  name: "Lite" | "Pro";
   price: string;
   slots: string;
+  features: string[];
 };
 
 export type SubscriptionStatus = {
   label: string;
   value: string;
   state: SubscriptionState;
-  until: string;
+  until?: string;
 };
 
 export type Task = {
@@ -31,7 +36,16 @@ export type Task = {
   account: string;
   progress: number;
   status: TaskStatus;
+  count: number;
+  done: number;
+  templateId?: number;
   error?: string;
+};
+
+export type PublicationVariant = {
+  id: number;
+  name: string;
+  count: number;
 };
 
 export type PublicationTemplate = {
@@ -40,6 +54,9 @@ export type PublicationTemplate = {
   active: boolean;
   accounts: string[];
   cities: string[];
+  mode: TemplateMode;
+  autoCount: number;
+  variants: PublicationVariant[];
 };
 
 export type Listing = {
@@ -47,8 +64,12 @@ export type Listing = {
   avitoId: number;
   title: string;
   price: number;
-  mode: "Авто" | "Вручную";
+  imageUrl?: string;
+  mode: ListingMode;
   selected: boolean;
   updated: string;
+  nextUpdate: string;
+  status: ListingStatus;
+  error?: string;
 };
 
