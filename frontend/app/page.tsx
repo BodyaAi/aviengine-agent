@@ -6,12 +6,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   Cloud,
-  Copy,
   FileText,
   MousePointerClick,
   RefreshCw,
   Shield,
   Sparkles,
+  Star,
   UserRound,
   Zap,
 } from "lucide-react";
@@ -47,8 +47,8 @@ const benefits = [
   { icon: RefreshCw, title: "Smart-Уникализация", text: "Тасовка городов, уникализация и ротация фото, перефраз текста - создание множества обьявлений" },
   { icon: Shield, title: "Анти-Бан", text: "Мониторинг лимитов Авито и безопасные интервалы публикации." },
   { icon: Cloud, title: "Облачный запуск", text: "Работает на наших серверах. Ваш компьютер выключен — агент продолжает." },
-  { icon: RefreshCw, title: "Автообновление", text: "AI сам поднимает объявления в нужный момент для максимальной отдачи." },
-  { icon: Copy, title: "Smart-Миграция", text: "Копирует лучшие объявления между аккаунтами одной кнопкой." },
+  { icon: RefreshCw, title: "Автообновление", text: "Вы сами выбираете, какие объявления обновить и какие элементы изменить — текст, фото или описание.\nAI помогает с уникализацией и улучшением контента." },
+  { icon: Star, title: "Развитие продукта", text: "Мы открыты к вашим идеям: вы можете предлагать свои функции и улучшения, а мы развиваем платформу с учётом запросов пользователей." },
 ];
 
 export default function LandingPage() {
