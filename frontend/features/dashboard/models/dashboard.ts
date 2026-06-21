@@ -84,4 +84,3 @@ export type Listing = {
   error?: string;
   accountId?: number;
 };
-
