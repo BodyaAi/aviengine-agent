@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Account, Listing, MigrationItem, PublicationTemplate, PublicationVariant, SubscriptionPlan, SubscriptionState, SubscriptionStatus, Tab, Task, TemplateMode } from "../models/dashboard";
+import type { Account, Listing, MigrationItem, PhotoMode, PublicationTemplate, PublicationVariant, SubscriptionPlan, SubscriptionState, SubscriptionStatus, Tab, Task, TemplateMode, UpdateAction } from "../models/dashboard";
 
 const cities = ["Москва", "Санкт‑Петербург", "Новосибирск", "Екатеринбург", "Казань", "Нижний Новгород", "Челябинск", "Самара", "Уфа", "Ростов-на-Дону", "Красноярск", "Воронеж", "Пермь", "Волгоград", "Краснодар", "Сочи", "Тюмень", "Иркутск", "Омск", "Владивосток"];
 
@@ -50,6 +50,7 @@ const initialListings: Listing[] = titles.map((title, i) => ({
   nextUpdate: i === 1 ? "Доступно через 14 мин" : "Доступно сейчас",
   status: statuses[i],
   error: statuses[i] === "error" ? "Фид не прошёл валидацию XML" : undefined,
+  accountId: i < 3 ? 1 : i < 5 ? 2 : i < 7 ? 4 : 5,
 }));
 
 const subscriptionPlans: SubscriptionPlan[] = [
@@ -92,6 +93,11 @@ export function useDashboardState() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [templates, setTemplates] = useState<PublicationTemplate[]>(initialTemplates);
   const [listings, setListings] = useState<Listing[]>(initialListings);
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+  const [updateAction, setUpdateAction] = useState<UpdateAction>("ai_text");
+  const [photoMode, setPhotoMode] = useState<PhotoMode>("shuffle");
+  const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
+  const [customVariants, setCustomVariants] = useState<string[]>([]);
 
   const subscription = subscriptionView(subscriptionState);
   const isLocked = subscriptionState === "trial_ended" || subscriptionState === "expired";
@@ -142,7 +148,45 @@ export function useDashboardState() {
   const toggleTemplateMigration = (id: number) => setTemplates(current => current.map(template => template.id === id ? { ...template, migrationEnabled: !template.migrationEnabled } : template));
 
   const toggleListing = (id: number) => setListings(current => current.map(listing => listing.id === id ? { ...listing, selected: !listing.selected } : listing));
-  const toggleAllListings = () => setListings(current => current.map(listing => ({ ...listing, selected: selectedListings !== current.length })));
+  const toggleAllListings = () => {
+    const filteredListings = selectedAccountId ? listings.filter(l => l.accountId === selectedAccountId) : listings;
+    const allSelected = filteredListings.every(l => l.selected);
+    setListings(current => current.map(listing => {
+      if (selectedAccountId && listing.accountId !== selectedAccountId) return listing;
+      return { ...listing, selected: !allSelected };
+    }));
+  };
+
+  const applyUpdateAction = () => {
+    const chosen = listings.filter(listing => listing.selected && (!selectedAccountId || listing.accountId === selectedAccountId));
+    if (chosen.length === 0) return;
+
+    const actionLabels: Record<UpdateAction, string> = {
+      ai_text: "AI уникализация текста",
+      ai_photos: "Уникализация фото",
+      upload_photos: "Загрузка новых фото",
+      custom_text: "Свой текст",
+      refresh: "Обновление",
+    };
+
+    setTasks(current => [{
+      id: Date.now(),
+      title: `${actionLabels[updateAction]} (${chosen.length} шт.)`,
+      account: "Выбранные аккаунты",
+      progress: 0,
+      count: chosen.length,
+      done: 0,
+      status: "running"
+    }, ...current]);
+
+    setListings(current => current.map(listing => {
+      if (!listing.selected || (selectedAccountId && listing.accountId !== selectedAccountId)) return listing;
+      return { ...listing, status: "queued", updated: "в очереди", nextUpdate: "После выполнения задачи" };
+    }));
+
+    setTab("manager");
+  };
+
   const updateSelectedListings = () => {
     const chosen = listings.filter(listing => listing.selected);
     if (chosen.length === 0) return;
@@ -167,5 +211,7 @@ export function useDashboardState() {
     tasks, errors, runAgent, stopTask, resumeTask, removeTask, clearTasks,
     templates, createTemplate, deleteTemplate, activateTemplate, deactivateTemplate, updateTemplateName, updateTemplateAccounts, updateTemplateCities, updateTemplateMode, updateTemplateAutoCount, updateTemplateVariants, toggleTemplateMigration,
     listings, selectedListings, toggleListing, toggleAllListings, updateSelectedListings, updateListingNow,
+    selectedAccountId, setSelectedAccountId, updateAction, setUpdateAction, photoMode, setPhotoMode, uploadedPhotos, setUploadedPhotos, customVariants, setCustomVariants, applyUpdateAction,
   };
 }
+

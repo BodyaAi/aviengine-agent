@@ -7,6 +7,8 @@ export type TaskStatus = "running" | "paused" | "queue" | "error" | "done";
 export type TemplateMode = "auto" | "manual";
 export type ListingStatus = "idle" | "queued" | "updating" | "done" | "error";
 export type ListingMode = "auto" | "manual";
+export type UpdateAction = "ai_text" | "ai_photos" | "upload_photos" | "custom_text" | "refresh";
+export type PhotoMode = "shuffle" | "viktor_unique";
 
 export type Account = {
   id: number;
@@ -80,5 +82,6 @@ export type Listing = {
   nextUpdate: string;
   status: ListingStatus;
   error?: string;
+  accountId?: number;
 };
 

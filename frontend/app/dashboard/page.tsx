@@ -38,7 +38,26 @@ export default function DashboardPage() {
             )}
             {dashboard.tab === "updates" && (
               <motion.div key="updates" initial={{ opacity: 0, y: 22, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(8px)" }} transition={{ duration: .42 }}>
-                <UpdatesTab listings={dashboard.listings} selectedListings={dashboard.selectedListings} toggleListing={dashboard.toggleListing} toggleAllListings={dashboard.toggleAllListings} updateSelectedListings={dashboard.updateSelectedListings} updateListingNow={dashboard.updateListingNow} />
+                <UpdatesTab
+                  listings={dashboard.listings}
+                  accounts={dashboard.accounts}
+                  selectedListings={dashboard.selectedListings}
+                  toggleListing={dashboard.toggleListing}
+                  toggleAllListings={dashboard.toggleAllListings}
+                  updateSelectedListings={dashboard.updateSelectedListings}
+                  updateListingNow={dashboard.updateListingNow}
+                  selectedAccountId={dashboard.selectedAccountId}
+                  setSelectedAccountId={dashboard.setSelectedAccountId}
+                  updateAction={dashboard.updateAction}
+                  setUpdateAction={dashboard.setUpdateAction}
+                  photoMode={dashboard.photoMode}
+                  setPhotoMode={dashboard.setPhotoMode}
+                  uploadedPhotos={dashboard.uploadedPhotos}
+                  setUploadedPhotos={dashboard.setUploadedPhotos}
+                  customVariants={dashboard.customVariants}
+                  setCustomVariants={dashboard.setCustomVariants}
+                  applyUpdateAction={dashboard.applyUpdateAction}
+                />
               </motion.div>
             )}
           </AnimatePresence>
