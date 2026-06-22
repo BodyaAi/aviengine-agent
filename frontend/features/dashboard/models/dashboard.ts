@@ -48,6 +48,10 @@ export type PublicationVariant = {
   id: number;
   name: string;
   count: number;
+  category: string;
+  title: string;
+  imageUrl: string;
+  price: number;
 };
 
 export type PublicationTemplate = {

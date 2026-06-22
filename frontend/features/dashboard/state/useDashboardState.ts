@@ -23,9 +23,21 @@ const initialTasks: Task[] = [
 ];
 
 const initialTemplates: PublicationTemplate[] = [
-  { id: 1, name: "Авто — BMW X5", active: false, accounts: ["Applexis"], cities: ["Москва", "Санкт‑Петербург"], variants: [{ id: 1, name: "Объявление 1", count: 25 }] },
-  { id: 2, name: "Электроника — iPhone 15 Pro", active: false, accounts: ["Applexis", "MotoDrive"], cities: ["Москва"], variants: [{ id: 1, name: "Объявление 1", count: 25 }, { id: 2, name: "Объявление 2", count: 15 }] },
-  { id: 3, name: "Мебель — Диван угловой", active: false, accounts: ["HomeCraft"], cities: [], variants: [{ id: 1, name: "Объявление 1", count: 5 }] },
+  {
+    id: 1, name: "Авто — BMW X5", active: false, accounts: ["Applexis"], cities: ["Москва", "Санкт‑Петербург"],
+    variants: [{ id: 1, name: "Объявление 1", count: 25, category: "Транспорт", title: "BMW X5 G05 2021", imageUrl: "https://images.unsplash.com/photo-1555215695-3004950ad420?w=400", price: 6200000 }],
+  },
+  {
+    id: 2, name: "Электроника — iPhone 15 Pro", active: false, accounts: ["Applexis", "MotoDrive"], cities: ["Москва"],
+    variants: [
+      { id: 1, name: "Объявление 1", count: 25, category: "Электроника", title: "iPhone 15 Pro 256GB", imageUrl: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400", price: 99000 },
+      { id: 2, name: "Объявление 2", count: 15, category: "Электроника", title: "AirPods Pro 2", imageUrl: "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400", price: 17900 },
+    ],
+  },
+  {
+    id: 3, name: "Мебель — Диван угловой", active: false, accounts: ["HomeCraft"], cities: [],
+    variants: [{ id: 1, name: "Объявление 1", count: 5, category: "Мебель", title: "Диван угловой Moon", imageUrl: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400", price: 45000 }],
+  },
 ];
 
 const titles = ["iPhone 15 Pro 256GB", "BMW X5 G05", "Диван угловой Moon", "AirPods Pro 2", "Toyota Camry фара", "MacBook Air M2", "Кресло офисное", "Шины Michelin"];
@@ -121,9 +133,7 @@ export function useDashboardState() {
   const removeTask = (id: number) => setTasks(current => current.filter(task => task.id !== id));
   const clearTasks = () => setTasks([]);
 
-  const createTemplate = () => setTemplates(current => [{ id: Date.now(), name: `Новый шаблон #${current.length + 1}`, active: false, accounts: [], cities: [], variants: [] }, ...current]);
-  const deleteTemplate = (id: number) => setTemplates(current => current.filter(template => template.id !== id));
-  const activateTemplate = (id: number) => {
+  const createTemplate = () => setTemplates(current => [{ id: Date.now(), name: `Новый шаблон #${current.length + 1}`, active: false, accounts: [], cities: [], variants: [] }, ...current]);  const deleteTemplate = (id: number) => setTemplates(current => current.filter(template => template.id !== id));  const activateTemplate = (id: number) => {
     const template = templates.find(item => item.id === id);
     if (!template || template.accounts.length === 0 || template.cities.length === 0) return;
     const total = template.variants.reduce((sum, variant) => sum + variant.count, 0);
