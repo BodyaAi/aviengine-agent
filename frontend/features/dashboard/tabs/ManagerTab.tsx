@@ -1,18 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AlertTriangle, CheckSquare2, Pause, Play, Trash2, Zap } from "lucide-react";
+import { AlertTriangle, CheckSquare2, Pause, Play, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import type { Task } from "../models/dashboard";
 import { PanelHeader } from "../components/PanelHeader";
 
-export function ManagerTab({ tasks, errors, runAgent, stopTask, resumeTask, removeTask, clearTasks }: { tasks: Task[]; errors: Task[]; runAgent: () => void; stopTask: (id: number) => void; resumeTask: (id: number) => void; removeTask: (id: number) => void; clearTasks: () => void }) {
+export function ManagerTab({ tasks, errors, stopTask, resumeTask, removeTask, clearTasks }: { tasks: Task[]; errors: Task[]; stopTask: (id: number) => void; resumeTask: (id: number) => void; removeTask: (id: number) => void; clearTasks: () => void }) {
   const activeTasks = tasks.filter(task => task.status !== "error" && !task.error);
   return (
     <Card className="light-panel overflow-hidden text-ink-900">
-      <PanelHeader icon={CheckSquare2} title="Менеджер задач" action={<div className="flex gap-2"><Button size="sm" onClick={runAgent}><Zap className="h-4 w-4" /> Запустить AI агента</Button>{tasks.length > 0 && <Button size="sm" variant="secondary" className="bg-primary-50 text-primary-700 hover:bg-primary-100" onClick={clearTasks}>Очистить</Button>}</div>} />
+      <PanelHeader icon={CheckSquare2} title="Менеджер задач" action={tasks.length > 0 ? <Button size="sm" variant="secondary" className="bg-primary-50 text-primary-700 hover:bg-primary-100" onClick={clearTasks}>Очистить</Button> : undefined} />
       <div className="grid grid-cols-3 border-b border-primary-900/10 text-sm"><Kpi l="Выполнено" v="54%" /><Kpi l="Активных задач" v={String(tasks.length)} /><Kpi l="Ошибки" v={String(errors.length)} danger /></div>
       <div className="p-4"><div className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-primary-700"><span className="h-2 w-2 rounded-full bg-primary-600" /> В процессе</div>{activeTasks.map(task => <TaskRow key={task.id} task={task} stopTask={stopTask} resumeTask={resumeTask} removeTask={removeTask} />)}{activeTasks.length === 0 && <div className="rounded-2xl border border-dashed border-primary-300 bg-primary-50 p-6 text-center text-sm text-ink-500">Нет активных задач</div>}</div>
       {errors.length > 0 && <ErrorState errors={errors} removeTask={removeTask} />}

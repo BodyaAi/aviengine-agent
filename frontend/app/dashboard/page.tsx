@@ -28,7 +28,7 @@ export default function DashboardPage() {
           <AnimatePresence mode="wait">
             {dashboard.tab === "manager" && (
               <motion.div key="manager" initial={{ opacity: 0, y: 22, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(8px)" }} transition={{ duration: .42 }}>
-                <ManagerTab tasks={dashboard.tasks} errors={dashboard.errors} runAgent={dashboard.runAgent} stopTask={dashboard.stopTask} resumeTask={dashboard.resumeTask} removeTask={dashboard.removeTask} clearTasks={dashboard.clearTasks} />
+                <ManagerTab tasks={dashboard.tasks} errors={dashboard.errors} stopTask={dashboard.stopTask} resumeTask={dashboard.resumeTask} removeTask={dashboard.removeTask} clearTasks={dashboard.clearTasks} />
               </motion.div>
             )}
             {dashboard.tab === "publication" && (
