@@ -7,6 +7,8 @@ import { useDashboardState } from "@/features/dashboard/state/useDashboardState"
 import { ManagerTab } from "@/features/dashboard/tabs/ManagerTab";
 import { PublicationTab } from "@/features/dashboard/tabs/PublicationTab";
 import { UpdatesTab } from "@/features/dashboard/tabs/UpdatesTab";
+import { DevTools } from "@/features/dashboard/components/DevTools";
+import { DashboardBackground } from "@/features/dashboard/components/DashboardBackground";
 
 export default function DashboardPage() {
   const dashboard = useDashboardState();
@@ -17,8 +19,9 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="min-h-screen text-white" style={{ background: "linear-gradient(145deg, #0e38e8 0%, #1650ff 25%, #1e60ff 55%, #0830d8 100%)" }}>
-      <div className="pointer-events-none fixed inset-0 opacity-25" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)", backgroundSize: "24px 24px" }} />
+    <main className="relative min-h-screen text-white">
+      <DashboardBackground />
+      <div className="pointer-events-none fixed inset-0 z-[1] opacity-25" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)", backgroundSize: "24px 24px" }} />
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: .6 }} className="container relative z-10 py-6">
         <DashboardHeader accounts={dashboard.accounts} accountsOpen={dashboard.accountsOpen} setAccountsOpen={dashboard.setAccountsOpen} addAccount={dashboard.addAccount} removeAccount={dashboard.removeAccount} subscription={dashboard.subscription} subscriptionState={dashboard.subscriptionState} subscriptionPlans={dashboard.subscriptionPlans} subscriptionOpen={dashboard.subscriptionOpen} setSubscriptionOpen={dashboard.setSubscriptionOpen} selectedPlan={dashboard.selectedPlan} setSelectedPlan={dashboard.setSelectedPlan} cycleSubscription={dashboard.cycleSubscription} selectPlan={dashboard.selectPlan} />
         <TabSwitcher tab={dashboard.tab} setTab={dashboard.setTab} />
@@ -53,7 +56,10 @@ export default function DashboardPage() {
           </AnimatePresence>
           </div>
         </section>
+        <DevTools state={dashboard.subscriptionState} onCycle={dashboard.cycleSubscription} />
       </motion.div>
     </main>
   );
 }
+
+
