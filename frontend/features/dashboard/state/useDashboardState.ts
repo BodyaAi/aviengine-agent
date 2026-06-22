@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Account, Listing, MigrationItem, PhotoMode, PublicationTemplate, PublicationVariant, SubscriptionPlan, SubscriptionState, SubscriptionStatus, Tab, Task, TemplateMode, UpdateAction } from "../models/dashboard";
+import type { Account, Listing, PhotoMode, PublicationTemplate, PublicationVariant, SubscriptionPlan, SubscriptionState, SubscriptionStatus, Tab, Task, TemplateMode, UpdateAction } from "../models/dashboard";
 
 const cities = ["Москва", "Санкт‑Петербург", "Новосибирск", "Екатеринбург", "Казань", "Нижний Новгород", "Челябинск", "Самара", "Уфа", "Ростов-на-Дону", "Красноярск", "Воронеж", "Пермь", "Волгоград", "Краснодар", "Сочи", "Тюмень", "Иркутск", "Омск", "Владивосток"];
 
@@ -93,7 +93,7 @@ export function useDashboardState() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [templates, setTemplates] = useState<PublicationTemplate[]>(initialTemplates);
   const [listings, setListings] = useState<Listing[]>(initialListings);
-  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+  const [selectedAccountIds, setSelectedAccountIds] = useState<number[]>([]);
   const [updateAction, setUpdateAction] = useState<UpdateAction>("ai_text");
   const [photoMode, setPhotoMode] = useState<PhotoMode>("shuffle");
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
@@ -149,30 +149,26 @@ export function useDashboardState() {
 
   const toggleListing = (id: number) => setListings(current => current.map(listing => listing.id === id ? { ...listing, selected: !listing.selected } : listing));
   const toggleAllListings = () => {
-    const filteredListings = selectedAccountId ? listings.filter(l => l.accountId === selectedAccountId) : listings;
+    const filteredListings = selectedAccountIds.length > 0 ? listings.filter(l => selectedAccountIds.includes(l.accountId)) : listings;
     const allSelected = filteredListings.every(l => l.selected);
     setListings(current => current.map(listing => {
-      if (selectedAccountId && listing.accountId !== selectedAccountId) return listing;
+      if (selectedAccountIds.length > 0 && !selectedAccountIds.includes(listing.accountId)) return listing;
       return { ...listing, selected: !allSelected };
     }));
   };
 
-  const applyUpdateAction = () => {
-    const chosen = listings.filter(listing => listing.selected && (!selectedAccountId || listing.accountId === selectedAccountId));
+  const applyUpdateAction = (customTitle?: string) => {
+    const chosen = listings.filter(listing => listing.selected && (selectedAccountIds.length === 0 || selectedAccountIds.includes(listing.accountId)));
     if (chosen.length === 0) return;
 
-    const actionLabels: Record<UpdateAction, string> = {
-      ai_text: "AI уникализация текста",
-      ai_photos: "Уникализация фото",
-      upload_photos: "Загрузка новых фото",
-      custom_text: "Свой текст",
-      refresh: "Обновление",
-    };
+    const accountLabel = selectedAccountIds.length === 0
+      ? "Все аккаунты"
+      : selectedAccountIds.map(id => accounts.find(a => a.id === id)?.name).filter(Boolean).join(", ");
 
     setTasks(current => [{
       id: Date.now(),
-      title: `${actionLabels[updateAction]} (${chosen.length} шт.)`,
-      account: "Выбранные аккаунты",
+      title: customTitle || `Обновление (${chosen.length} шт.)`,
+      account: accountLabel,
       progress: 0,
       count: chosen.length,
       done: 0,
@@ -180,27 +176,9 @@ export function useDashboardState() {
     }, ...current]);
 
     setListings(current => current.map(listing => {
-      if (!listing.selected || (selectedAccountId && listing.accountId !== selectedAccountId)) return listing;
+      if (!listing.selected || (selectedAccountIds.length > 0 && !selectedAccountIds.includes(listing.accountId))) return listing;
       return { ...listing, status: "queued", updated: "в очереди", nextUpdate: "После выполнения задачи" };
     }));
-
-    setTab("manager");
-  };
-
-  const updateSelectedListings = () => {
-    const chosen = listings.filter(listing => listing.selected);
-    if (chosen.length === 0) return;
-    setTasks(current => [{ id: Date.now(), title: `Обновление объявлений (${chosen.length} шт.)`, account: "Выбранные аккаунты", progress: 0, count: chosen.length, done: 0, status: "running" }, ...current]);
-    setListings(current => current.map(listing => listing.selected ? { ...listing, status: "queued", updated: "в очереди", nextUpdate: "После выполнения задачи" } : listing));
-    setTab("manager");
-  };
-
-  const updateListingNow = (id: number) => {
-    const listing = listings.find(item => item.id === id);
-    if (!listing) return;
-    setTasks(current => [{ id: Date.now(), title: `Обновление: ${listing.title}`, account: "Выбранный аккаунт", progress: 0, count: 1, done: 0, status: "running" }, ...current]);
-    setListings(current => current.map(item => item.id === id ? { ...item, selected: true, status: "queued", updated: "в очереди", nextUpdate: "После выполнения задачи" } : item));
-    setTab("manager");
   };
 
   return {
@@ -210,8 +188,10 @@ export function useDashboardState() {
     subscriptionOpen, setSubscriptionOpen, selectedPlan, setSelectedPlan,
     tasks, errors, runAgent, stopTask, resumeTask, removeTask, clearTasks,
     templates, createTemplate, deleteTemplate, activateTemplate, deactivateTemplate, updateTemplateName, updateTemplateAccounts, updateTemplateCities, updateTemplateMode, updateTemplateAutoCount, updateTemplateVariants, toggleTemplateMigration,
-    listings, selectedListings, toggleListing, toggleAllListings, updateSelectedListings, updateListingNow,
-    selectedAccountId, setSelectedAccountId, updateAction, setUpdateAction, photoMode, setPhotoMode, uploadedPhotos, setUploadedPhotos, customVariants, setCustomVariants, applyUpdateAction,
+    listings, selectedListings, toggleListing, toggleAllListings,
+    selectedAccountIds, setSelectedAccountIds, updateAction, setUpdateAction, photoMode, setPhotoMode, uploadedPhotos, setUploadedPhotos, customVariants, setCustomVariants, applyUpdateAction,
   };
 }
+
+
 

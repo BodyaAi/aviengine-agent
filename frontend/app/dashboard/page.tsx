@@ -33,7 +33,7 @@ export default function DashboardPage() {
             )}
             {dashboard.tab === "publication" && (
               <motion.div key="publication" initial={{ opacity: 0, y: 22, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(8px)" }} transition={{ duration: .42 }}>
-                <PublicationTab accounts={dashboard.accounts} cities={dashboard.cities} templates={dashboard.templates} createTemplate={dashboard.createTemplate} deleteTemplate={dashboard.deleteTemplate} activateTemplate={dashboard.activateTemplate} deactivateTemplate={dashboard.deactivateTemplate} updateTemplateName={dashboard.updateTemplateName} updateTemplateAccounts={dashboard.updateTemplateAccounts} updateTemplateCities={dashboard.updateTemplateCities} updateTemplateMode={dashboard.updateTemplateMode} updateTemplateAutoCount={dashboard.updateTemplateAutoCount} updateTemplateVariants={dashboard.updateTemplateVariants} toggleTemplateMigration={dashboard.toggleTemplateMigration} />
+                <PublicationTab accounts={dashboard.accounts} cities={dashboard.cities} templates={dashboard.templates} createTemplate={dashboard.createTemplate} deleteTemplate={dashboard.deleteTemplate} activateTemplate={dashboard.activateTemplate} deactivateTemplate={dashboard.deactivateTemplate} updateTemplateName={dashboard.updateTemplateName} updateTemplateAccounts={dashboard.updateTemplateAccounts} updateTemplateCities={dashboard.updateTemplateCities} updateTemplateVariants={dashboard.updateTemplateVariants} />
               </motion.div>
             )}
             {dashboard.tab === "updates" && (
@@ -44,18 +44,8 @@ export default function DashboardPage() {
                   selectedListings={dashboard.selectedListings}
                   toggleListing={dashboard.toggleListing}
                   toggleAllListings={dashboard.toggleAllListings}
-                  updateSelectedListings={dashboard.updateSelectedListings}
-                  updateListingNow={dashboard.updateListingNow}
-                  selectedAccountId={dashboard.selectedAccountId}
-                  setSelectedAccountId={dashboard.setSelectedAccountId}
-                  updateAction={dashboard.updateAction}
-                  setUpdateAction={dashboard.setUpdateAction}
-                  photoMode={dashboard.photoMode}
-                  setPhotoMode={dashboard.setPhotoMode}
-                  uploadedPhotos={dashboard.uploadedPhotos}
-                  setUploadedPhotos={dashboard.setUploadedPhotos}
-                  customVariants={dashboard.customVariants}
-                  setCustomVariants={dashboard.setCustomVariants}
+                  selectedAccountIds={dashboard.selectedAccountIds}
+                  setSelectedAccountIds={dashboard.setSelectedAccountIds}
                   applyUpdateAction={dashboard.applyUpdateAction}
                 />
               </motion.div>

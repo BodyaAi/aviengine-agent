@@ -2,21 +2,25 @@
 
 import { useMemo, useState } from "react";
 import {
-  AlertCircle, CheckCircle2, ChevronDown, Clock, FileText, Image as ImageIcon,
-  RefreshCw, Search, Upload, X, type LucideIcon,
+  AlertCircle, CheckCircle2, Clock, FileText, Image as ImageIcon,
+  Plus, RefreshCw, Search, Trash2, Upload, X, type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Account, Listing, PhotoMode, UpdateAction } from "../models/dashboard";
+import { useToast } from "@/components/ui/toast";
+import type { Account, Listing } from "../models/dashboard";
 import { PanelHeader } from "../components/PanelHeader";
 
-// --- Local types for the two independent action categories ---
+// --- Local types ---
 
 type TextAction = "ai_text" | "custom_text" | "refresh" | null;
 type PhotoAction = "ai_photos" | "upload_photos" | null;
+
+type TextTemplate = { id: number; title: string; description: string };
+type PhotoTemplate = { id: number; mainPhoto: string | null; otherPhotos: string[] };
 
 type UpdatesTabProps = {
   listings: Listing[];
@@ -24,268 +28,441 @@ type UpdatesTabProps = {
   selectedListings: number;
   toggleListing: (id: number) => void;
   toggleAllListings: () => void;
-  updateSelectedListings: () => void;
-  updateListingNow: (id: number) => void;
-  selectedAccountId: number | null;
-  setSelectedAccountId: (id: number | null) => void;
-  updateAction: UpdateAction;
-  setUpdateAction: (action: UpdateAction) => void;
-  photoMode: PhotoMode;
-  setPhotoMode: (mode: PhotoMode) => void;
-  uploadedPhotos: string[];
-  setUploadedPhotos: (photos: string[]) => void;
-  customVariants: string[];
-  setCustomVariants: (variants: string[]) => void;
-  applyUpdateAction: () => void;
+  selectedAccountIds: number[];
+  setSelectedAccountIds: (ids: number[]) => void;
+  applyUpdateAction: (customTitle?: string) => void;
 };
 
 export function UpdatesTab(props: UpdatesTabProps) {
   const {
     listings, accounts, toggleListing, toggleAllListings,
-    selectedAccountId, setSelectedAccountId,
-    updateAction, setUpdateAction,
-    photoMode, setPhotoMode,
-    uploadedPhotos, setUploadedPhotos,
-    customVariants, setCustomVariants,
+    selectedAccountIds, setSelectedAccountIds,
     applyUpdateAction,
   } = props;
 
-  // Derive independent text/photo actions from existing props
-  const textAction: TextAction =
-    updateAction === "ai_photos" || updateAction === "upload_photos" ? null : updateAction;
-  const photoAction: PhotoAction =
-    updateAction === "ai_photos" ? "ai_photos"
-    : updateAction === "upload_photos" ? "upload_photos"
-    : photoMode === "viktor_unique" ? "ai_photos"
+  // ── Local state for the new panel structure ──
+
+  // Text panel
+  const [textEnabled, setTextEnabled] = useState(true);
+  const [textTab, setTextTab] = useState<"ai" | "custom">("ai");
+  const [aiTextMode, setAiTextMode] = useState<"both" | "title" | "description">("both");
+  const [textTemplates, setTextTemplates] = useState<TextTemplate[]>([]);
+
+  // Photo panel
+  const [photoEnabled, setPhotoEnabled] = useState(false);
+  const [photoTemplates, setPhotoTemplates] = useState<PhotoTemplate[]>([]);
+
+  // Derive effective actions from local panel state
+  const textAction: TextAction = textEnabled
+    ? textTab === "ai" ? "ai_text" : "custom_text"
     : null;
+  const photoAction: PhotoAction = photoEnabled ? "upload_photos" : null;
+
+  // ── Toast ──
+  const { toast } = useToast();
+
+  // ── Existing UI state ──
 
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<"all" | Listing["status"]>("all");
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | Listing["status"]>("all");
 
   const filteredListings = useMemo(() => {
     return listings.filter(item => {
-      const matchesAccount = !selectedAccountId || item.accountId === selectedAccountId;
+      const matchesAccount = selectedAccountIds.length === 0 || selectedAccountIds.includes(item.accountId);
       const matchesQuery = item.title.toLowerCase().includes(query.toLowerCase());
-      const matchesStatus = status === "all" || item.status === status;
+      const matchesStatus = statusFilter === "all" || item.status === statusFilter;
       return matchesAccount && matchesQuery && matchesStatus;
     });
-  }, [listings, selectedAccountId, query, status]);
+  }, [listings, selectedAccountIds, query, statusFilter]);
 
   const selectedCount = filteredListings.filter(l => l.selected).length;
 
-  // --- Action handlers ---
+  // ── Status counts for filter buttons ──
 
-  const handleTextActionChange = (action: TextAction) => {
-    if (action === null) {
-      if (photoAction) {
-        setUpdateAction(photoAction);
-      } else {
-        setUpdateAction("refresh");
-      }
-    } else {
-      setUpdateAction(action);
-    }
-  };
+  const statusCounts = useMemo(() => {
+    const base = listings.filter(item =>
+      (selectedAccountIds.length === 0 || selectedAccountIds.includes(item.accountId)) &&
+      item.title.toLowerCase().includes(query.toLowerCase())
+    );
+    return {
+      all: base.length,
+      idle: base.filter(l => l.status === "idle").length,
+      updating: base.filter(l => l.status === "updating" || l.status === "queued").length,
+      error: base.filter(l => l.status === "error").length,
+    };
+  }, [listings, selectedAccountIds, query]);
 
-  const handlePhotoActionChange = (action: PhotoAction) => {
-    if (action === null) {
-      setPhotoMode("shuffle");
-    } else if (action === "ai_photos") {
-      if (textAction) {
-        setUpdateAction(textAction);
-      } else {
-        setUpdateAction("ai_photos");
-      }
-      setPhotoMode("viktor_unique");
-    } else if (action === "upload_photos") {
-      if (textAction) {
-        setUpdateAction(textAction);
-      } else {
-        setUpdateAction("upload_photos");
-      }
-      setPhotoMode("shuffle");
-    }
-  };
+  // ── Template helpers ──
+
+  const addTextTemplate = () =>
+    setTextTemplates(prev => [...prev, { id: Date.now(), title: "", description: "" }]);
+
+  const updateTextTemplate = (id: number, field: keyof TextTemplate, value: string) =>
+    setTextTemplates(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
+
+  const removeTextTemplate = (id: number) =>
+    setTextTemplates(prev => prev.filter(t => t.id !== id));
+
+  const addPhotoTemplate = () =>
+    setPhotoTemplates(prev => [...prev, { id: Date.now(), mainPhoto: null, otherPhotos: [] }]);
+
+  const updatePhotoTemplate = (id: number, field: keyof PhotoTemplate, value: string | string[] | null) =>
+    setPhotoTemplates(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
+
+  const removePhotoTemplate = (id: number) =>
+    setPhotoTemplates(prev => prev.filter(t => t.id !== id));
+
+  /** Remove a single "other photo" by index */
+  const removeOtherPhoto = (templateId: number, index: number) =>
+    setPhotoTemplates(prev => prev.map(t =>
+      t.id === templateId
+        ? { ...t, otherPhotos: t.otherPhotos.filter((_, i) => i !== index) }
+        : t
+    ));
+
+  // ── Action handler ──
 
   const handleApply = () => {
     if (selectedCount === 0) return;
-    setShowConfirmDialog(true);
+
+    // Build task title based on selected actions
+    let title = "Обновление";
+    if (textAction && photoAction) {
+      title = "Обновление текста и фото";
+    } else if (textAction) {
+      title = "Обновление текста";
+    } else if (photoAction) {
+      title = "Обновление фото";
+    }
+
+    applyUpdateAction(`${title} (${selectedCount} шт.)`);
+
+    // Show system toast
+    toast({
+      title: "Задача добавлена в Менеджер задач",
+      description: `${title} — ${selectedCount} шт.`,
+      variant: "success",
+    });
   };
-
-  const handleConfirm = () => {
-    setShowConfirmDialog(false);
-    applyUpdateAction();
-  };
-
-  // --- Summary for bottom bar ---
-
-  const textActionCount = filteredListings.filter(l => l.selected && textAction && textAction !== "refresh").length;
-  const photoActionCount = filteredListings.filter(l => l.selected && photoAction !== null).length;
 
   return (
     <Card className="light-panel overflow-hidden rounded-[1.8rem] text-ink-900 shadow-[0_28px_90px_rgba(4,18,54,.18)]">
       <PanelHeader icon={RefreshCw} title="Обновления" />
-      
-      {/* Account selector */}
+
+      {/* ── Account selector (multi-select chips) ── */}
       <div className="border-b border-primary-900/10 bg-white/46 p-5">
         <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-ink-500">
           Аккаунт
         </label>
-        <div className="relative">
-          <select
-            value={selectedAccountId ?? ""}
-            onChange={e => setSelectedAccountId(e.target.value ? Number(e.target.value) : null)}
-            className="h-10 w-full appearance-none rounded-2xl border border-primary-900/10 bg-white px-4 pr-9 text-sm font-semibold text-ink-700 shadow-sm outline-none ring-primary-300 transition focus:ring-2"
-          >
-            <option value="">Все аккаунты</option>
-            {accounts.map(acc => (
-              <option key={acc.id} value={acc.id}>{acc.name}</option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-3 h-4 w-4 text-primary-700" />
+        <div className="flex flex-wrap gap-2">
+          <AccountChip
+            label="Все аккаунты"
+            active={selectedAccountIds.length === 0}
+            onClick={() => setSelectedAccountIds([])}
+          />
+          {accounts.map(acc => (
+            <AccountChip
+              key={acc.id}
+              label={acc.name}
+              active={selectedAccountIds.includes(acc.id)}
+              onClick={() => {
+                setSelectedAccountIds(prev =>
+                  prev.includes(acc.id)
+                    ? prev.filter(id => id !== acc.id)
+                    : [...prev, acc.id]
+                );
+              }}
+            />
+          ))}
         </div>
       </div>
 
-      {/* ── Action settings: two independent panels ── */}
+      {/* ════════════════════════════════════════════ */}
+      {/* ── Action settings: Text & Photo panels ──  */}
+      {/* ════════════════════════════════════════════ */}
       <div className="space-y-4 border-b border-primary-900/10 bg-white/46 p-5">
         <p className="text-xs font-bold uppercase tracking-wider text-ink-500">
           Настройка действий
         </p>
 
-        {/* ── Text panel ── */}
-        <div className="rounded-2xl border border-primary-900/10 bg-white/70 p-4">
-          <div className="mb-3 flex items-center gap-2 text-sm font-bold text-ink-700">
-            <FileText className="h-4 w-4" />
-            Текст
-          </div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <RadioOption
-              checked={textAction === "ai_text"}
-              onChange={() => handleTextActionChange("ai_text")}
-              label="AI уникализация"
-            />
-            <RadioOption
-              checked={textAction === "custom_text"}
-              onChange={() => handleTextActionChange("custom_text")}
-              label="Свой текст (тасовка)"
-            />
-            <RadioOption
-              checked={textAction === null || textAction === "refresh"}
-              onChange={() => handleTextActionChange(null)}
-              label="Нет"
-            />
+        {/* ══════════ TEXT PANEL ══════════ */}
+        <div className="rounded-2xl border border-primary-900/10 bg-white/70 overflow-hidden">
+          {/* Header with toggle */}
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2 text-sm font-bold text-ink-800">
+              <FileText className="h-4 w-4 text-primary-600" />
+              Текст
+            </div>
+            <Toggle checked={textEnabled} onChange={setTextEnabled} />
           </div>
 
-          {/* Custom text variants */}
-          {textAction === "custom_text" && (
-            <div className="mt-4 space-y-2">
-              {customVariants.map((variant, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Input
-                    value={variant}
-                    onChange={e => {
-                      const next = [...customVariants];
-                      next[i] = e.target.value;
-                      setCustomVariants(next);
-                    }}
-                    placeholder={`Вариант ${i + 1}`}
-                    className="h-10 flex-1 rounded-2xl border-primary-900/10 bg-white"
+          {/* Content (visible when enabled) */}
+          {textEnabled && (
+            <div className="border-t border-primary-900/8 px-4 pb-4 pt-3">
+              {/* Tabs */}
+              <div className="mb-4 inline-flex rounded-xl bg-ink-100 p-1">
+                <TabButton
+                  active={textTab === "ai"}
+                  onClick={() => setTextTab("ai")}
+                >
+                  AI Переработка
+                </TabButton>
+                <TabButton
+                  active={textTab === "custom"}
+                  onClick={() => setTextTab("custom")}
+                >
+                  Свой контент
+                </TabButton>
+              </div>
+
+              {/* ── AI Переработка mode ── */}
+              {textTab === "ai" && (
+                <div className="space-y-2.5">
+                  <RadioOption
+                    checked={aiTextMode === "both"}
+                    onChange={() => setAiTextMode("both")}
+                    label="Обновить название и описание"
                   />
-                  {customVariants.length > 1 && (
-                    <button
-                      onClick={() => setCustomVariants(customVariants.filter((_, j) => j !== i))}
-                      className="rounded-full p-1 text-ink-400 transition hover:bg-danger/10 hover:text-danger"
+                  <RadioOption
+                    checked={aiTextMode === "title"}
+                    onChange={() => setAiTextMode("title")}
+                    label="Обновить название"
+                  />
+                  <RadioOption
+                    checked={aiTextMode === "description"}
+                    onChange={() => setAiTextMode("description")}
+                    label="Обновить описание"
+                  />
+                </div>
+              )}
+
+              {/* ── Свой контент mode ── */}
+              {textTab === "custom" && (
+                <div className="space-y-3">
+                  <Button
+                    size="sm"
+                    onClick={addTextTemplate}
+                    className="rounded-xl"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Создать шаблон
+                  </Button>
+
+                  {textTemplates.map((tpl, idx) => (
+                    <div
+                      key={tpl.id}
+                      className="rounded-xl border border-primary-900/10 bg-white p-3"
                     >
-                      <X className="h-4 w-4" />
-                    </button>
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="text-xs font-bold uppercase tracking-wide text-ink-500">
+                          Шаблон {idx + 1}
+                        </span>
+                        <button
+                          onClick={() => removeTextTemplate(tpl.id)}
+                          className="rounded-lg p-1 text-ink-400 transition hover:bg-danger/10 hover:text-danger"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Заголовок */}
+                      <div className="mb-2">
+                        <label className="mb-1 block text-xs font-semibold text-ink-600">
+                          Заголовок
+                        </label>
+                        <input
+                          value={tpl.title}
+                          onChange={e => updateTextTemplate(tpl.id, "title", e.target.value)}
+                          placeholder="Введите заголовок…"
+                          className="h-10 w-full rounded-xl border border-primary-900/10 bg-ink-50 px-3 text-sm text-ink-900 outline-none transition focus:border-primary-300 focus:ring-2 focus:ring-primary-100"
+                        />
+                      </div>
+
+                      {/* Описание */}
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold text-ink-600">
+                          Описание
+                        </label>
+                        <textarea
+                          value={tpl.description}
+                          onChange={e => updateTextTemplate(tpl.id, "description", e.target.value)}
+                          placeholder="Введите описание…"
+                          rows={3}
+                          className="w-full resize-none rounded-xl border border-primary-900/10 bg-ink-50 px-3 py-2 text-sm text-ink-900 outline-none transition focus:border-primary-300 focus:ring-2 focus:ring-primary-100"
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  {textTemplates.length === 0 && (
+                    <p className="rounded-xl border border-dashed border-primary-200 bg-primary-50/40 px-3 py-4 text-center text-xs text-ink-400">
+                      Нет шаблонов. Нажмите «Создать шаблон» чтобы добавить.
+                    </p>
                   )}
                 </div>
-              ))}
-              {customVariants.length < 5 && (
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ══════════ PHOTO PANEL ══════════ */}
+        <div className="rounded-2xl border border-primary-900/10 bg-white/70 overflow-hidden">
+          {/* Header with toggle */}
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2 text-sm font-bold text-ink-800">
+              <ImageIcon className="h-4 w-4 text-primary-600" />
+              Фото
+            </div>
+            <Toggle checked={photoEnabled} onChange={setPhotoEnabled} />
+          </div>
+
+          {/* Content (visible when enabled) */}
+          {photoEnabled && (
+            <div className="border-t border-primary-900/8 px-4 pb-4 pt-3">
+              <div className="space-y-3">
                 <Button
                   size="sm"
-                  variant="secondary"
-                  onClick={() => setCustomVariants([...customVariants, ""])}
-                  className="rounded-full"
+                  onClick={addPhotoTemplate}
+                  className="rounded-xl"
                 >
-                  Добавить вариант
+                  <Plus className="h-4 w-4" />
+                  Создать шаблон
                 </Button>
-              )}
-            </div>
-          )}
-        </div>
 
-        {/* ── Photo panel ── */}
-        <div className="rounded-2xl border border-primary-900/10 bg-white/70 p-4">
-          <div className="mb-3 flex items-center gap-2 text-sm font-bold text-ink-700">
-            <ImageIcon className="h-4 w-4" />
-            Фото
-          </div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <RadioOption
-              checked={photoAction === "ai_photos"}
-              onChange={() => handlePhotoActionChange("ai_photos")}
-              label="Уникализация фото"
-            />
-            <RadioOption
-              checked={photoAction === "upload_photos"}
-              onChange={() => handlePhotoActionChange("upload_photos")}
-              label="Загрузить фото"
-            />
-            <RadioOption
-              checked={photoAction === null}
-              onChange={() => handlePhotoActionChange(null)}
-              label="Нет"
-            />
-          </div>
+                {photoTemplates.map((tpl, idx) => (
+                  <div
+                    key={tpl.id}
+                    className="rounded-xl border border-primary-900/10 bg-white p-3"
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-wide text-ink-500">
+                        Шаблон {idx + 1}
+                      </span>
+                      <button
+                        onClick={() => removePhotoTemplate(tpl.id)}
+                        className="rounded-lg p-1 text-ink-400 transition hover:bg-danger/10 hover:text-danger"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
 
-          {/* Photo upload dropzone */}
-          {photoAction === "upload_photos" && (
-            <div className="mt-4">
-              <div className="rounded-2xl border-2 border-dashed border-primary-300 bg-white p-6 text-center">
-                <Upload className="mx-auto mb-2 h-8 w-8 text-primary-400" />
-                <p className="text-sm text-ink-600">
-                  Перетащите файлы сюда или нажмите для выбора
-                </p>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={e => {
-                    const files = Array.from(e.target.files || []);
-                    setUploadedPhotos(files.map(f => f.name));
-                  }}
-                  className="mt-3"
-                />
+                    {/* Главное фото */}
+                    <div className="mb-3">
+                      <label className="mb-1.5 block text-xs font-semibold text-ink-600">
+                        Главное фото
+                      </label>
+                      <Dropzone
+                        label="Главное фото"
+                        photo={tpl.mainPhoto}
+                        maxReached={(tpl.mainPhoto ? 1 : 0) >= 1}
+                        onUploadSingle={fileName => updatePhotoTemplate(tpl.id, "mainPhoto", fileName)}
+                        onRemoveMain={() => updatePhotoTemplate(tpl.id, "mainPhoto", null)}
+                      />
+                    </div>
+
+                    {/* Остальные фото */}
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold text-ink-600">
+                        Остальные фото {tpl.otherPhotos.length > 0 && (
+                          <span className="text-ink-400">({tpl.otherPhotos.length}/9)</span>
+                        )}
+                      </label>
+                      <Dropzone
+                        label="Остальные фото"
+                        multiple
+                        photos={tpl.otherPhotos}
+                        maxReached={1 + tpl.otherPhotos.length >= 10}
+                        onUploadMultiple={fileNames => updatePhotoTemplate(tpl.id, "otherPhotos", [...tpl.otherPhotos, ...fileNames])}
+                        onRemoveOther={idx => removeOtherPhoto(tpl.id, idx)}
+                      />
+                    </div>
+                  </div>
+                ))}
+
+                {photoTemplates.length === 0 && (
+                  <p className="rounded-xl border border-dashed border-primary-200 bg-primary-50/40 px-3 py-4 text-center text-xs text-ink-400">
+                    Нет шаблонов. Нажмите «Создать шаблон» чтобы добавить.
+                  </p>
+                )}
               </div>
-              {uploadedPhotos.length > 0 && (
-                <p className="mt-2 text-sm text-ink-500">
-                  Загружено: {uploadedPhotos.length} фото
-                </p>
-              )}
             </div>
           )}
         </div>
       </div>
 
-      {/* Search and filter */}
+      {/* ── Action bar (separate panel) ── */}
       <div className="border-b border-primary-900/10 bg-white/46 p-5">
-        <div className="grid gap-4 md:grid-cols-[1fr_220px]">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-ink-400" />
-            <Input
-              value={query}
-              onChange={event => setQuery(event.target.value)}
-              className="h-10 rounded-2xl border-primary-900/10 bg-white/90 pl-9 text-ink-900 shadow-sm placeholder:text-ink-400"
-              placeholder="Поиск по объявлениям"
-            />
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-primary-900/10 bg-white/70 px-5 py-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleAllListings}
+              className="text-sm font-bold text-primary-700 transition hover:text-primary-900"
+            >
+              {selectedCount === filteredListings.length && filteredListings.length > 0
+                ? "Снять выбор"
+                : "Выбрать все"}
+            </button>
+            <span className="text-sm text-ink-600">
+              Выбрано {selectedCount} из {filteredListings.length}
+            </span>
           </div>
-          <StatusSelect value={status} onChange={setStatus} />
+          <button
+            onClick={handleApply}
+            disabled={selectedCount === 0}
+            className="rounded-2xl bg-gradient-to-r from-primary-600 to-primary-700 px-10 py-3 text-sm font-black text-white shadow-lg transition-all duration-200 hover:from-primary-700 hover:to-primary-800 active:translate-y-[2px] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Обновить
+          </button>
         </div>
       </div>
 
-      {/* Listings grid */}
+      {/* ── Search ── */}
+      <div className="border-b border-primary-900/10 bg-white/46 p-5">
+        <div className="relative">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-ink-400" />
+          <Input
+            value={query}
+            onChange={event => setQuery(event.target.value)}
+            className="h-10 rounded-2xl border-primary-900/10 bg-white/90 pl-9 text-ink-900 shadow-sm placeholder:text-ink-400"
+            placeholder="Поиск по объявлениям"
+          />
+        </div>
+      </div>
+
+      {/* ── Status filter (horizontal blocks) ── */}
+      <div className="border-b border-primary-900/10 bg-white/46 p-5">
+        <div className="flex flex-wrap gap-2">
+          <StatusChip
+            label="Все"
+            count={statusCounts.all}
+            active={statusFilter === "all"}
+            onClick={() => setStatusFilter("all")}
+          />
+          <StatusChip
+            label="Готово"
+            count={statusCounts.idle}
+            active={statusFilter === "idle"}
+            onClick={() => setStatusFilter("idle")}
+            variant="success"
+          />
+          <StatusChip
+            label="Обновляется"
+            count={statusCounts.updating}
+            active={statusFilter === "updating"}
+            onClick={() => setStatusFilter("updating")}
+            variant="blue"
+          />
+          <StatusChip
+            label="Ошибка"
+            count={statusCounts.error}
+            active={statusFilter === "error"}
+            onClick={() => setStatusFilter("error")}
+            variant="danger"
+          />
+        </div>
+      </div>
+
+      {/* ── Listings grid ── */}
       <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
         {filteredListings.map(item => (
           <ListingCard
@@ -302,93 +479,125 @@ export function UpdatesTab(props: UpdatesTabProps) {
           </div>
         )}
       </div>
-
-      {/* Bottom action bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-primary-900/10 bg-white/46 p-5">
-        <div className="flex flex-wrap items-center gap-4">
-          <button
-            onClick={toggleAllListings}
-            className="text-sm font-bold text-primary-700 transition hover:text-primary-900"
-          >
-            {selectedCount === filteredListings.length && filteredListings.length > 0
-              ? "Снять выбор"
-              : "Выбрать все"}
-          </button>
-          <span className="text-sm text-ink-600">
-            Выбрано {selectedCount} из {filteredListings.length}
-          </span>
-          {textActionCount > 0 && textAction && textAction !== "refresh" && (
-            <Badge variant="default" className="gap-1">
-              <FileText className="h-3 w-3" />
-              {textAction === "ai_text" ? "AI" : "Свой"} ({textActionCount})
-            </Badge>
-          )}
-          {photoActionCount > 0 && photoAction && (
-            <Badge variant="default" className="gap-1">
-              <ImageIcon className="h-3 w-3" />
-              {photoAction === "ai_photos" ? "Уникализация" : "Загрузка"} ({photoActionCount})
-            </Badge>
-          )}
-        </div>
-        <Button
-          onClick={handleApply}
-          disabled={selectedCount === 0}
-          className="rounded-full"
-        >
-          Обновить выбранные
-        </Button>
-      </div>
-
-      {/* Confirmation dialog */}
-      {showConfirmDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <Card className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-            <h3 className="mb-4 text-xl font-black text-ink-900">Подтверждение</h3>
-            <div className="mb-6 space-y-3 text-sm text-ink-700">
-              <div>
-                <span className="font-bold">Текст:</span>{" "}
-                {textAction === "ai_text" && "AI уникализация"}
-                {textAction === "custom_text" && `Свой текст (${customVariants.length} вариант.)`}
-                {textAction === "refresh" && "Без изменений"}
-                {textAction === null && "Без изменений"}
-              </div>
-              <div>
-                <span className="font-bold">Фото:</span>{" "}
-                {photoAction === "ai_photos" && "Уникализация"}
-                {photoAction === "upload_photos" && `Загруженные (${uploadedPhotos.length} шт.)`}
-                {photoAction === null && "Без изменений"}
-              </div>
-              <div>
-                <span className="font-bold">Объявлений:</span> {selectedCount}
-              </div>
-              {selectedAccountId && (
-                <div>
-                  <span className="font-bold">Аккаунт:</span>{" "}
-                  {accounts.find(a => a.id === selectedAccountId)?.name}
-                </div>
-              )}
-            </div>
-            <div className="flex gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setShowConfirmDialog(false)}
-                className="flex-1 rounded-full"
-              >
-                Отмена
-              </Button>
-              <Button onClick={handleConfirm} className="flex-1 rounded-full">
-                Подтвердить
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
     </Card>
   );
 }
 
-// ── Local components ──
+// ══════════════════════════════════════════════
+// ── Local UI components ──
+// ══════════════════════════════════════════════
 
+/** Account selector chip (like PublicationTab) */
+function AccountChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-2xl border px-4 py-2.5 text-sm font-bold transition-all duration-200 ${
+        active
+          ? "border-primary-300 bg-primary-600 text-white shadow-sm"
+          : "border-primary-900/10 bg-white text-primary-700 hover:bg-primary-50"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+/** Status filter chip */
+function StatusChip({
+  label,
+  count,
+  active,
+  onClick,
+  variant = "default",
+}: {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+  variant?: "default" | "success" | "blue" | "danger";
+}) {
+  const activeColor =
+    variant === "success" ? "bg-success text-white border-success"
+    : variant === "blue" ? "bg-primary-600 text-white border-primary-600"
+    : variant === "danger" ? "bg-danger text-white border-danger"
+    : "bg-primary-600 text-white border-primary-600";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold transition-all duration-200 ${
+        active ? activeColor : "border-primary-900/10 bg-white text-ink-600 hover:bg-primary-50"
+      }`}
+    >
+      {label}
+      <span className={`rounded-full px-1.5 py-0.5 text-xs ${
+        active ? "bg-white/25" : "bg-primary-50 text-primary-700"
+      }`}>
+        {count}
+      </span>
+    </button>
+  );
+}
+
+/** Animated toggle switch */
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${
+        checked ? "bg-primary-600" : "bg-ink-300"
+      }`}
+    >
+      <span
+        className={`inline-block h-4.5 w-4.5 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
+          checked ? "translate-x-6" : "translate-x-1"
+        }`}
+        style={{ height: "1.125rem", width: "1.125rem" }}
+      />
+    </button>
+  );
+}
+
+/** Pill-style tab button */
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+        active
+          ? "bg-white text-primary-700 shadow-sm"
+          : "text-ink-500 hover:text-ink-700"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Radio option */
 function RadioOption({
   checked,
   onChange,
@@ -413,39 +622,116 @@ function RadioOption({
   );
 }
 
-function StatusSelect({
-  value,
-  onChange,
+/** Image upload dropzone with thumbnail grid */
+function Dropzone({
+  label,
+  photo,
+  photos,
+  multiple,
+  maxReached,
+  onUploadSingle,
+  onUploadMultiple,
+  onRemoveMain,
+  onRemoveOther,
 }: {
-  value: "all" | Listing["status"];
-  onChange: (value: "all" | Listing["status"]) => void;
+  label: string;
+  photo?: string | null;
+  photos?: string[];
+  multiple?: boolean;
+  maxReached?: boolean;
+  onUploadSingle?: (value: string) => void;
+  onUploadMultiple?: (value: string[]) => void;
+  onRemoveMain?: () => void;
+  onRemoveOther?: (index: number) => void;
 }) {
-  const options: { value: "all" | Listing["status"]; label: string }[] = [
-    { value: "all", label: "Все статусы" },
-    { value: "idle", label: "Готово" },
-    { value: "queued", label: "В очереди" },
-    { value: "updating", label: "Обновляется" },
-    { value: "done", label: "Готово" },
-    { value: "error", label: "Ошибка" },
-  ];
+  const photoList = photos ?? [];
+
   return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={event => onChange(event.target.value as "all" | Listing["status"])}
-        className="h-10 w-full appearance-none rounded-2xl border border-primary-900/10 bg-white px-4 pr-9 text-sm font-semibold text-ink-700 shadow-sm outline-none ring-primary-300 transition focus:ring-2"
-      >
-        {options.map(option => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-3 top-3 h-4 w-4 text-primary-700" />
+    <div className="space-y-2">
+      {/* ── Thumbnail grid ── */}
+      {multiple ? (
+        photoList.length > 0 && (
+          <div className="grid grid-cols-5 gap-2">
+            {photoList.map((p, i) => (
+              <div
+                key={i}
+                className="group relative aspect-square overflow-hidden rounded-lg border border-primary-900/10 bg-ink-50"
+              >
+                <img
+                  src={p}
+                  alt={`Фото ${i + 1}`}
+                  className="h-full w-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => onRemoveOther?.(i)}
+                  className="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-black/50 text-white opacity-0 transition group-hover:opacity-100 hover:bg-danger"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )
+      ) : (
+        photo && (
+          <div className="group relative aspect-[16/7] overflow-hidden rounded-lg border border-primary-900/10 bg-ink-50">
+            <img
+              src={photo}
+              alt="Главное фото"
+              className="h-full w-full object-cover"
+            />
+            <button
+              type="button"
+              onClick={() => onRemoveMain?.()}
+              className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/50 text-white opacity-0 transition group-hover:opacity-100 hover:bg-danger"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )
+      )}
+
+      {/* ── Upload button / placeholder ── */}
+      {!maxReached && (
+        <label className="block cursor-pointer">
+          <div className="grid place-items-center rounded-xl border-2 border-dashed border-primary-300 bg-primary-50/30 px-4 py-5 text-center transition hover:border-primary-400 hover:bg-primary-50/60">
+            <Upload className="mb-1.5 h-6 w-6 text-primary-400" />
+            <p className="text-xs font-semibold text-ink-600">
+              {multiple && photoList.length > 0
+                ? "Добавить ещё"
+                : `${label} (Загрузить)`}
+            </p>
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            multiple={multiple}
+            className="hidden"
+            onChange={e => {
+              const files = Array.from(e.target.files || []).map(f => URL.createObjectURL(f));
+              if (multiple) {
+                onUploadMultiple?.(files);
+              } else {
+                onUploadSingle?.(files[0] ?? "");
+              }
+            }}
+          />
+        </label>
+      )}
+
+      {/* ── Counter / limit hint ── */}
+      {multiple && (
+        <p className="text-xs text-ink-400">
+          {photoList.length}/9 фото
+          {maxReached && " · достигнут лимит (10 с главным)"}
+        </p>
+      )}
     </div>
   );
 }
 
+/** Listing status → badge mapping */
 const statusView: Record<
   Listing["status"],
   { text: string; variant: "default" | "blue" | "warning" | "danger" | "success"; icon: LucideIcon }
@@ -457,6 +743,7 @@ const statusView: Record<
   error: { text: "Ошибка", variant: "danger", icon: AlertCircle },
 };
 
+/** Listing card */
 function ListingCard({
   item,
   onToggle,
@@ -510,17 +797,17 @@ function ListingCard({
       <div className="mb-1 text-xs text-ink-500">Обновлён: {item.updated}</div>
       <div className="text-xs text-ink-500">{item.nextUpdate}</div>
 
-      {/* Action indicators: what will be applied */}
+      {/* Action indicators */}
       {showActions && (
         <div className="mt-3 flex gap-2">
-          {textAction && textAction !== "refresh" && (
+          {textAction && (
             <span className="inline-flex items-center gap-1 rounded-lg bg-primary-100 px-2 py-1 text-xs font-semibold text-primary-700">
               ✎ {textAction === "ai_text" ? "AI текст" : "Свой текст"}
             </span>
           )}
           {photoAction && (
             <span className="inline-flex items-center gap-1 rounded-lg bg-cyan/15 px-2 py-1 text-xs font-semibold text-cyan-700">
-              📸 {photoAction === "ai_photos" ? "Уникализация" : "Загрузка"}
+              📸 Загрузка фото
             </span>
           )}
         </div>
@@ -534,3 +821,7 @@ function ListingCard({
     </div>
   );
 }
+
+
+
+

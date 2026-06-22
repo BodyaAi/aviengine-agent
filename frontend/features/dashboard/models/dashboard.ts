@@ -4,7 +4,6 @@ export type ManagerSubTab = "tasks" | "migration" | "ai";
 export type AccountStatus = "connected" | "error";
 export type SubscriptionState = "trial_limits" | "trial_ended" | "lite" | "pro" | "expired";
 export type TaskStatus = "running" | "paused" | "queue" | "error" | "done";
-export type TemplateMode = "auto" | "manual";
 export type ListingStatus = "idle" | "queued" | "updating" | "done" | "error";
 export type ListingMode = "auto" | "manual";
 export type UpdateAction = "ai_text" | "ai_photos" | "upload_photos" | "custom_text" | "refresh";
@@ -57,17 +56,7 @@ export type PublicationTemplate = {
   active: boolean;
   accounts: string[];
   cities: string[];
-  mode: TemplateMode;
-  autoCount: number;
   variants: PublicationVariant[];
-  migrationEnabled: boolean;
-};
-
-export type MigrationItem = {
-  id: number;
-  title: string;
-  fromAccount: string;
-  toAccounts: string[];
 };
 
 export type Listing = {
