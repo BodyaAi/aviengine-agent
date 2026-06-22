@@ -33,12 +33,12 @@ export function SubscriptionWidget({
   onSelectPlan: (plan: "lite" | "pro") => void;
 }) {
   return (
-    <div data-subscription-zone="true" className="min-w-[520px]" onClick={cycleSubscription}>
+    <div data-subscription-zone="true" className="shrink-0" onClick={cycleSubscription}>
       {subscriptionState === "trial_limits" && (
-        <div onClick={event => event.stopPropagation()} className="rounded-2xl border border-white/20 bg-white/12 p-3 text-white backdrop-blur-xl">
+        <div onClick={event => event.stopPropagation()} className="rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-600 to-primary-700 p-3 text-white shadow-lg">
           <div className="mb-3 text-sm font-black">Пробный доступ по лимитам</div>
           <div className="grid grid-cols-4 gap-2">
-            {limits.map(({ name, value, icon: Icon }) => <div key={name} className="rounded-xl bg-white/10 p-2"><div className="flex items-center justify-between gap-1 text-[11px] font-bold"><Icon className="h-3.5 w-3.5" />{value}</div><div className="mt-1 truncate text-[11px] text-white/70">{name}</div><div className="mt-2 h-1 rounded-full bg-white/20" /></div>)}
+            {limits.map(({ name, value, icon: Icon }) => <div key={name} className="rounded-xl bg-white/14 p-2"><div className="flex items-center justify-between gap-1 text-[11px] font-bold"><Icon className="h-3.5 w-3.5" />{value}</div><div className="mt-1 truncate text-[11px] text-white/70">{name}</div><div className="mt-2 h-1 rounded-full bg-white/20" /></div>)}
           </div>
         </div>
       )}
