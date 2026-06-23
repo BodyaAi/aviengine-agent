@@ -62,7 +62,7 @@ export function DashboardHeader({
   useEffect(() => { setMounted(true); }, []);
 
   return (
-    <header className="relative mx-auto mb-5 flex w-full max-w-5xl flex-col gap-4 rounded-[1.6rem] border border-white/18 bg-white/12 px-6 py-4 shadow-glass backdrop-blur-2xl lg:flex-row lg:items-center lg:justify-center lg:gap-8">
+    <header className="relative mx-auto mb-5 flex w-fit max-w-4xl flex-col gap-5 rounded-[1.6rem] border border-white/18 bg-white/12 px-3 py-3 shadow-glass backdrop-blur-2xl lg:flex-row lg:items-center lg:justify-center lg:gap-10">
       <div className="flex items-center gap-3">
         <Image src={aviLogo} alt="AviEngine" width={42} height={42} className="rounded-2xl shadow-[0_18px_45px_rgba(20,85,255,.35)]" />
         <span className="text-xl font-black tracking-tight text-white drop-shadow-sm">AviEngine</span>
