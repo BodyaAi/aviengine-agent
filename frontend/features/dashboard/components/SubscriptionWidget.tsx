@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, FileText, Megaphone, RefreshCw, Star, User, X, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { SubscriptionPlan, SubscriptionState, SubscriptionStatus } from "../models/dashboard";
@@ -60,9 +62,11 @@ function PlanBadge({ tone, label }: { tone: "lite" | "pro"; label: string }) {
 }
 
 function SubscriptionSelectionWidget({ open, setOpen, plans, selectedPlan, setSelectedPlan, onSelectPlan }: { open: boolean; setOpen: (open: boolean) => void; plans: SubscriptionPlan[]; selectedPlan: "lite" | "pro"; setSelectedPlan: (plan: "lite" | "pro") => void; onSelectPlan: (plan: "lite" | "pro") => void }) {
-  if (!open) return null;
-  return (
-    <div data-subscription-zone="true" className="fixed inset-0 z-50 grid place-items-center bg-ink-950/60 p-4 backdrop-blur-md" onMouseDown={() => setOpen(false)}>
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!open || !mounted) return null;
+  return createPortal(
+    <div data-subscription-zone="true" className="fixed inset-0 z-[200] grid place-items-center bg-ink-950/60 p-4 backdrop-blur-md" onMouseDown={() => setOpen(false)}>
       <div className="max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] border border-white/18 bg-white p-5 text-ink-900 shadow-[0_30px_100px_rgba(4,18,54,.34)]" onMouseDown={event => event.stopPropagation()}>
         <div className="mb-5 flex items-start justify-between gap-4 text-center sm:text-left">
           <div><div className="text-2xl font-black text-primary-700">AviEngine</div><h2 className="mt-1 text-2xl font-black tracking-tight">Переходи на AI‑автопилот.</h2><p className="mt-2 text-sm text-ink-500">Lite проще для старта, Pro строже для масштабирования.</p></div>
@@ -84,6 +88,7 @@ function SubscriptionSelectionWidget({ open, setOpen, plans, selectedPlan, setSe
           })}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
