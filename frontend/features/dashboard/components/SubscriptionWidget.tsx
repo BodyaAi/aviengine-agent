@@ -76,14 +76,13 @@ function SubscriptionSelectionWidget({ open, setOpen, plans, selectedPlan, setSe
           {plans.map(plan => {
             const pro = plan.id === "pro";
             return <button key={plan.id} type="button" onClick={() => setSelectedPlan(plan.id)} className={`relative flex min-h-[430px] flex-col rounded-[1.75rem] border p-6 text-left text-white transition ${pro ? "border-blue-200/20 bg-gradient-to-br from-ink-950 via-primary-900 to-primary-600 shadow-[0_24px_70px_rgba(7,20,58,.34)]" : "border-white/40 bg-gradient-to-br from-fuchsia-500 to-cyan shadow-[0_18px_52px_rgba(20,160,255,.24)]"}`}>
-              {selectedPlan === plan.id && <span className="absolute right-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-black text-primary-700">Выбрано</span>}
               <div className="mb-4 inline-flex w-fit rounded-full border border-white/25 bg-white/14 px-3 py-1 text-xs font-black uppercase tracking-wider">Подписка {plan.name}</div>
               <div className="text-4xl font-black tracking-tight">{plan.price}</div>
               <div className="mt-2 text-sm text-white/78">{plan.slots}</div>
               <div className="mt-6 flex flex-1 flex-col gap-3">
                 {plan.features.map(feature => <div key={feature} className="flex gap-3 text-sm leading-5"><span className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-white/18"><Check className="h-3 w-3" /></span>{feature}</div>)}
               </div>
-              <Button className="mt-6 w-full rounded-2xl bg-white text-primary-700 hover:bg-primary-50" onClick={event => { event.stopPropagation(); onSelectPlan(plan.id); }}>{pro ? <Zap className="h-4 w-4" /> : null}{pro ? "Активировать Pro" : "Выбрать Lite"}</Button>
+              <Button className="mt-6 w-full rounded-2xl bg-white/20 text-white hover:bg-white/30" onClick={event => { event.stopPropagation(); onSelectPlan(plan.id); }}>{pro ? <Zap className="h-4 w-4" /> : null}{pro ? "Активировать Pro" : "Выбрать Lite"}</Button>
             </button>;
           })}
         </div>
