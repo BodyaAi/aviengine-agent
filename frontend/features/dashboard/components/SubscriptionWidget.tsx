@@ -58,7 +58,7 @@ function StatusCta({ text, hint, onClick }: { text: string; hint: string; onClic
 }
 
 function PlanBadge({ tone, label }: { tone: "lite" | "pro"; label: string }) {
-  return <div onClick={event => event.stopPropagation()} className={`flex items-center justify-center gap-2 rounded-full border px-4 py-2 text-sm font-bold text-white shadow-glass ${tone === "pro" ? "border-blue-200/30 bg-gradient-to-r from-ink-950 via-primary-900 to-primary-600" : "border-white/25 bg-gradient-to-r from-fuchsia-500 to-cyan"}`}>{tone === "pro" ? <Star className="h-4 w-4 fill-white" /> : <Check className="h-4 w-4" />}{label}</div>;
+  return <div onClick={event => event.stopPropagation()} className={`flex items-center justify-center gap-1.5 rounded-full border px-4 py-2 text-sm font-bold text-white shadow-glass ${tone === "pro" ? "border-white/10 bg-gradient-to-r from-ink-950 via-ink-900 to-ink-950" : "border-white/25 bg-gradient-to-r from-fuchsia-500 to-cyan"}`}>{tone === "pro" ? <Star className="h-3 w-3 fill-white text-white/80" /> : <Check className="h-4 w-4" />}{label}</div>;
 }
 
 function SubscriptionSelectionWidget({ open, setOpen, plans, selectedPlan, setSelectedPlan, onSelectPlan }: { open: boolean; setOpen: (open: boolean) => void; plans: SubscriptionPlan[]; selectedPlan: "lite" | "pro"; setSelectedPlan: (plan: "lite" | "pro") => void; onSelectPlan: (plan: "lite" | "pro") => void }) {
@@ -75,13 +75,13 @@ function SubscriptionSelectionWidget({ open, setOpen, plans, selectedPlan, setSe
         <div className="grid gap-4 md:grid-cols-2">
           {plans.map(plan => {
             const pro = plan.id === "pro";
-            return <button key={plan.id} type="button" onClick={() => setSelectedPlan(plan.id)} className={`relative flex flex-col rounded-[1.75rem] border p-6 text-left text-white transition ${pro ? "border-blue-200/20 bg-gradient-to-br from-ink-950 via-primary-900 to-primary-600 shadow-[0_24px_70px_rgba(7,20,58,.34)]" : "border-white/40 bg-gradient-to-br from-fuchsia-500 to-cyan shadow-[0_18px_52px_rgba(20,160,255,.24)]"}`}>
+            return <button key={plan.id} type="button" onClick={() => setSelectedPlan(plan.id)} className={`relative flex flex-col rounded-[1.75rem] border p-6 text-left text-white transition ${pro ? "border-white/10 bg-gradient-to-br from-ink-950 via-ink-900 to-ink-950 shadow-[0_24px_70px_rgba(0,0,0,0.5)]" : "border-white/40 bg-gradient-to-br from-fuchsia-500 to-cyan shadow-[0_18px_52px_rgba(20,160,255,.24)]"}`}>
               <div className="mb-4 inline-flex w-fit rounded-full border border-white/25 bg-white/14 px-3 py-1 text-xs font-black uppercase tracking-wider">Подписка {plan.name}</div>
               <div className="text-4xl font-black tracking-tight">{plan.price}</div>
               <div className="mt-3 text-2xl font-black text-white/90">{plan.slots}</div>
               <div className="mt-auto pt-6">
                 {pro && <p className="mb-4 text-sm font-medium text-white/70">В этом тарифе доступна функция обновления объявлений</p>}
-                <Button className="w-full rounded-2xl bg-white/20 text-white hover:bg-white/30" onClick={event => { event.stopPropagation(); onSelectPlan(plan.id); }}>{pro ? <Zap className="h-4 w-4" /> : null}{pro ? "Активировать Pro" : "Выбрать Lite"}</Button>
+                <Button className="w-full rounded-2xl bg-white/20 text-white hover:bg-white/30" onClick={event => { event.stopPropagation(); onSelectPlan(plan.id); }}>{pro ? <Star className="h-3 w-3 fill-white" /> : null}{pro ? "Активировать Pro" : "Выбрать Lite"}</Button>
               </div>
             </button>;
           })}
