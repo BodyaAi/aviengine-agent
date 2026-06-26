@@ -22,7 +22,6 @@ export type SubscriptionPlan = {
   name: "Lite" | "Pro";
   price: string;
   slots: string;
-  features: string[];
 };
 
 export type SubscriptionStatus = {
