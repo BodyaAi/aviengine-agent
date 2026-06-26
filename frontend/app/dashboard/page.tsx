@@ -9,6 +9,7 @@ import { PublicationTab } from "@/features/dashboard/tabs/PublicationTab";
 import { UpdatesTab } from "@/features/dashboard/tabs/UpdatesTab";
 import { DevTools } from "@/features/dashboard/components/DevTools";
 import { DashboardBackground } from "@/features/dashboard/components/DashboardBackground";
+import { UpdatesLockedBanner } from "@/features/dashboard/components/UpdatesLockedBanner";
 
 export default function DashboardPage() {
   const dashboard = useDashboardState();
@@ -24,7 +25,7 @@ export default function DashboardPage() {
       <div className="pointer-events-none fixed inset-0 z-[1] opacity-25" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)", backgroundSize: "24px 24px" }} />
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: .6 }} className="container relative z-10 py-6">
         <DashboardHeader accounts={dashboard.accounts} accountsOpen={dashboard.accountsOpen} setAccountsOpen={dashboard.setAccountsOpen} addAccount={dashboard.addAccount} removeAccount={dashboard.removeAccount} subscription={dashboard.subscription} subscriptionState={dashboard.subscriptionState} subscriptionPlans={dashboard.subscriptionPlans} subscriptionOpen={dashboard.subscriptionOpen} setSubscriptionOpen={dashboard.setSubscriptionOpen} selectedPlan={dashboard.selectedPlan} setSelectedPlan={dashboard.setSelectedPlan} cycleSubscription={dashboard.cycleSubscription} selectPlan={dashboard.selectPlan} />
-        <TabSwitcher tab={dashboard.tab} setTab={dashboard.setTab} />
+        <TabSwitcher tab={dashboard.tab} setTab={dashboard.setTab} isUpdatesLocked={dashboard.subscriptionState !== "pro"} />
         <section className="relative mx-auto mt-5 max-w-5xl" onClickCapture={handleContentClick}>
           {dashboard.isLocked && <div className="absolute inset-0 z-20 rounded-[2rem] bg-white/5 backdrop-blur-[1px]" />}
           <div className={dashboard.isLocked ? "pointer-events-none select-none opacity-60" : ""}>
@@ -41,6 +42,9 @@ export default function DashboardPage() {
             )}
             {dashboard.tab === "updates" && (
               <motion.div key="updates" initial={{ opacity: 0, y: 22, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(8px)" }} transition={{ duration: .42 }}>
+                {dashboard.subscriptionState !== "pro" ? (
+                  <UpdatesLockedBanner onActivate={() => dashboard.setSubscriptionOpen(true)} />
+                ) : (
                 <UpdatesTab
                   listings={dashboard.listings}
                   accounts={dashboard.accounts}
@@ -51,6 +55,7 @@ export default function DashboardPage() {
                   setSelectedAccountIds={dashboard.setSelectedAccountIds}
                   applyUpdateAction={dashboard.applyUpdateAction}
                 />
+                )}
               </motion.div>
             )}
           </AnimatePresence>

@@ -1,10 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckSquare2, RefreshCw, Send } from "lucide-react";
+import { CheckSquare2, Lock, RefreshCw, Send } from "lucide-react";
 import type { Tab } from "../models/dashboard";
 
-export function TabSwitcher({ tab, setTab }: { tab: Tab; setTab: (tab: Tab) => void }) {
+export function TabSwitcher({ tab, setTab, isUpdatesLocked }: { tab: Tab; setTab: (tab: Tab) => void; isUpdatesLocked: boolean }) {
   const tabs = [
     { id: "manager", label: "Менеджер задач", icon: CheckSquare2 },
     { id: "publication", label: "Публикация", icon: Send },
@@ -13,7 +13,9 @@ export function TabSwitcher({ tab, setTab }: { tab: Tab; setTab: (tab: Tab) => v
 
   return (
     <div className="mt-5 flex justify-center gap-2">
-      {tabs.map(({ id, label, icon: Icon }) => (
+      {tabs.map(({ id, label, icon: Icon }) => {
+        const locked = id === "updates" && isUpdatesLocked;
+        return (
         <motion.button
           whileHover={{ y: -2 }}
           whileTap={{ scale: .98 }}
@@ -24,9 +26,11 @@ export function TabSwitcher({ tab, setTab }: { tab: Tab; setTab: (tab: Tab) => v
           {tab === id && <motion.span layoutId="tab-glow" className="absolute inset-0 rounded-full bg-white/10" />}
           <Icon className="relative h-4 w-4" />
           <span className="relative">{label}</span>
-          {tab === id && <span className="relative h-1.5 w-1.5 rounded-full bg-cyan" />}
+          {locked && <Lock className="relative h-3 w-3 text-cyan" />}
+          {tab === id && !locked && <span className="relative h-1.5 w-1.5 rounded-full bg-cyan" />}
         </motion.button>
-      ))}
+        );
+      })}
     </div>
   );
 }
