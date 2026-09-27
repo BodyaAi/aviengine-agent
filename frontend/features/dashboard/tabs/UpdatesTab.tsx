@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import {
   AlertCircle, CheckCircle2, Clock, FileText, Image as ImageIcon,
   Plus, RefreshCw, Search, Trash2, Upload, X, type LucideIcon,
@@ -29,7 +29,7 @@ type UpdatesTabProps = {
   toggleListing: (id: number) => void;
   toggleAllListings: () => void;
   selectedAccountIds: number[];
-  setSelectedAccountIds: (ids: number[]) => void;
+  setSelectedAccountIds: Dispatch<SetStateAction<number[]>>;
   applyUpdateAction: (customTitle?: string) => void;
 };
 
@@ -821,7 +821,3 @@ function ListingCard({
     </div>
   );
 }
-
-
-
-
