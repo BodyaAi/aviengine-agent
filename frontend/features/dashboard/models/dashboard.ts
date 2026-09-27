@@ -74,5 +74,5 @@ export type Listing = {
   nextUpdate: string;
   status: ListingStatus;
   error?: string;
-  accountId?: number;
+  accountId: number;
 };
