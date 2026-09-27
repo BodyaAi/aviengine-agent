@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter", display: "swap" });
+const inter = localFont({
+  src: [
+    { path: "./fonts/inter-latin-ext-normal.woff2" },
+    { path: "./fonts/inter-cyrillic-normal.woff2" },
+  ],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "AviEngine — Enterprise автопилот Авито",
