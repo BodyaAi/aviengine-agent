@@ -15,11 +15,7 @@ class Task:
 
     identity_account_id: str
 
-    worker_account_id: str
-
     task_type: str
-
-    title: str
 
     status: str
 

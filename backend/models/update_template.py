@@ -7,12 +7,12 @@ class UpdateTemplate:
     Шаблон обновления существующих объявлений.
 
     Используется в UpdateTab.
-
-    Определяет какие изменения
-    необходимо применить к Listing.
+    
     """
 
     id: str
+
+    identity_account_id: str
 
     text_settings: dict
 

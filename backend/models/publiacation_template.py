@@ -13,6 +13,4 @@ class PublicationTemplate:
 
     name: str
 
-    selected_worker_accounts: list[str]
-
     selected_cities: list[str]
