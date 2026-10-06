@@ -4,3 +4,5 @@ future.md
 node_modules/
 dist
 references
+.env
+*.env.local
