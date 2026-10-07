@@ -6,3 +6,4 @@ dist
 references
 .env
 *.env.local
+context.md
